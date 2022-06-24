@@ -1,4 +1,6 @@
-# Quakes
+#  <p align="center">Quakes</p>
+
+![earthquakes >2.5 ](images/updated_events.png "Earthquakes on 24 June 2022")
 
 # Background and Project Description
 A few years ago I started a makerspace with a group of really good folks. Along the way we met an artist and instructor, Christina Weisner, who was in the early stages of doing a project and consulting with with one of our members, Kerry Krauss. Kerry was a professor of electronics technology at a local community college.
