@@ -1,7 +1,12 @@
+from tkinter import W
 import requests
+import pandas as pd
+from pandas.io.json import json_normalize
 
-def get_quake_json():
+def get_data(df):
     data = requests.get("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_day.geojson")
-    return data
+    # data = requests.get("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_week.geojson")
 
-#jsondata = data.json()
+    jsondata = data.json()
+    quakes = pd.json_normalize(jsondata['features'])
+    print(df)
