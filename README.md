@@ -2,26 +2,30 @@
 
 ![earthquakes >2.5 ](images/updated_events.png "Earthquakes on 24 June 2022")
 
-# Background and Project Description
+# Background 
 A few years ago I started a makerspace with a group of really good folks. Along the way we met an artist and instructor, Christina Weisner, who was in the early stages of doing a project and consulting with with one of our members, Kerry Krauss. Kerry was a professor of electronics technology at a local community college.
 
 According to Kerry, the code was a bit of kludge. It got the data from USGS somehow (I'm not sure if was RSS, Atom or JSON), processed it and sent a signal to a bunch of Arduino Uno boards by *sound*. Each Arduino was used to actuate one of the seismometers Christina bought. That's seems nuts but Kerry's rationale was, since they were having to troubleshoot at each location, that was easier than whipping out the multimeter. You can see Christina & Kerry and learn more about her project [here](https://www.youtube.com/embed/uK_es620K0w).
 
 I really like the idea of this project because it blends art with technology. And it's even cooler because one of the hydrophones was still functional so Christina (with some help) was able to further it by making the observers part of the installation. Another thing I found to be interesting is the artist as a sort of conductor. Christina had the inspiration and idea but a lot of the actual fabrication and technical aspects came from others. 
 
+<br><br>
+# Project Description
+
 I want to take this in a somewhat different direction. In part this is because I'd like to take a stab at a tsunami warning system but part is simply because don't have any hydrophones on hand. Or a place to store them for that matter.
 
 So, the plan (other than stepping into it as a time permits) is do a web app which I may or may not deploy. I'd like it to add in some additional features like tsunami model or meta model. I'm probably going to do some of the analysis in SQL by way of [datasette](https://datasette.io/) and possibly [dogsheep beta](https://dogsheep.github.io/) I don't know either of these but Simon Willison seems like a top notch guy and playing with new tech is what this is all about.
-<br><br><br>
 
-# Current Status
+<br><br>
+# Current Status: 1st phase done.
+Jupyter notebook that: 
+ - [x] pulls JSON data from USGS of earthquakes greater than magnitude 2.5 over the last 24 hrs. 
+ - [x] mungs the tsunami data.
+ - [x] displays map of quakes >= 2.5 over last 24 hrs using Folium because I wanted to recreate as close as I could the USGS map which is done in Leaflet.JS, which Folium is based on. 
 
-Jupyter notebook that pulls the JSON data from USGS of earthquakes greater than magnitude 2.5 over the last day. This is displayed using Folium because I wanted to recreate as close as I could the USGS map which is done in Leaflet.JS, which Folium is based on. It takes about 5 seconds to pull the data, process it and have it display.
 
 
-This is followed up with the data munging of tsunami data.
-
-<br><br><br>
+<br><br>
 
 # Progress and Next Steps
 
@@ -32,10 +36,10 @@ This is followed up with the data munging of tsunami data.
 - [ ] Twillio integration
   - [ ] Learn Twillio API
 - [ ] Deploy and seek feedback
-<br><br><br>
+<br><br>
 
 
-# On to the data
+# Understanding USGS Tusnami Data
 If you take some time to delve into the data, you're likely to wonder what do some of the values mean. Is a Tsunami Event Validity of 1 better or worse, more or less valid, or ... what than a Tsunami Event with a validity of 4? For the purposes of completeness, here is a legend for select fields along with commentary:
 <br><br>
 ### <u>Tsunami Event Validity (Valid values: -1 to 4)</u>
