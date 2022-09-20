@@ -1,8 +1,8 @@
 import os
 import pandas as pd
-from quake_data import get_data
+from quake_data import get_quake_data
 
 
 if __name__ == "__main__":
-    #get_quake_json()
-    get_data(df)
+    df = get_quake_data()
+    print(df)
