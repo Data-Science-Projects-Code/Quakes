@@ -1,5 +1,4 @@
 import os
-import pandas as pd
 from quake_data import get_quake_data, remove_prefixes, drop_useless_cols
 
 if __name__ == "__main__":
