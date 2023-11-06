@@ -1,5 +1,5 @@
-import os
-from quake_data import check_for_data, get_quake_data, remove_prefixes, drop_useless_cols, save_data
+from data_munging remove_prefixes, drop_useless_cols
+from transfer_data import check_for_data, get_quake_data, save_data
 
 if __name__ == "__main__":
     if check_for_data():
