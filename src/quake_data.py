@@ -1,5 +1,10 @@
+import os
 import requests
 import pandas as pd
+
+
+def check_for_data():
+    return os.path.isfile("../data/quake.csv")
 
 
 def get_quake_data():
@@ -19,6 +24,9 @@ def remove_prefixes(df):
 def drop_useless_cols(df):
     columns_to_drop = [
         "id", "type", "updated", "tz", "mmi", "detail", "felt", "cdi",
-        "felt", "types", "nst", "type", "title"
-    ]
+        "felt", "types", "nst", "type", "title"]
     return df.drop(columns=columns_to_drop)
+
+
+def save_data(df):
+    df.to_csv("../data/quake.csv")
