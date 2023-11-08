@@ -1,3 +1,6 @@
+import re
+
+
 def remove_prefixes(df):
     return df.rename(columns=lambda x: x
              .replace("properties.", "")
@@ -9,3 +12,17 @@ def drop_useless_cols(df):
         "id", "type", "updated", "tz", "mmi", "detail", "felt", "cdi",
         "felt", "types", "nst", "type", "title"]
     return df.drop(columns=columns_to_drop)
+
+
+def strip_commas(col1, col2):
+    def process_column(col):
+        # Remove leading and trailing commas
+        col = col.str.lstrip(',')
+        col = col.str.rstrip(',')
+        col = col.apply(lambda x: re.sub(r'(\w),(\w)', r'\1, \2', x))
+        return col
+
+    col1 = process_column(col1)
+    col2 = process_column(col2)
+
+    return col1, col2
