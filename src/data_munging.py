@@ -1,4 +1,5 @@
 import re
+import pandas as pd
 
 
 def remove_prefixes(df):
@@ -26,3 +27,8 @@ def strip_commas(col1, col2):
     col2 = process_column(col2)
 
     return col1, col2
+
+
+def convert_to_datetime(df):
+    df['time'] = pd.to_datetime(df['time'], unit='ms')
+    return df
