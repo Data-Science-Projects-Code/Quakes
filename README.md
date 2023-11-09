@@ -1,6 +1,6 @@
 #  <p align="center">Quakes</p>
 
-![earthquakes >2.5 ](images/quakes_last_24.html)
+![earthquakes >2.5 ](images/updated_events.png)
 "Earthquakes on 24 June 2022")
 
 ## For the impatient:
