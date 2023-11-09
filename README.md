@@ -2,6 +2,23 @@
 
 ![earthquakes >2.5 ](images/updated_events.png "Earthquakes on 24 June 2022")
 
+## For the impatient:
+
+
+# Table of Contents
+- [Quakes](#quakes)
+  - [For the impatient:](#for-the-impatient)
+- [Table of Contents](#table-of-contents)
+- [Background](#background)
+- [Project Description](#project-description)
+- [Current Status: 1st phase done.](#current-status-1st-phase-done)
+- [Progress and Next Steps](#progress-and-next-steps)
+- [Understanding USGS Tusnami Data](#understanding-usgs-tusnami-data)
+    - [Tsunami Event Validity (Valid values: -1 to 4)](#tsunami-event-validity-valid-values--1-to-4)
+    - [Deaths from the Tsunami and the Source Event](#deaths-from-the-tsunami-and-the-source-event)
+    - [Tsunami Cause Code: ](#tsunami-cause-code-)
+
+ impatient:
 # Background 
 A few years ago I started a makerspace with a group of really good folks. Along the way we met an artist and instructor, Christina Weisner, who was in the early stages of doing a project and consulting with with one of our members, Kerry Krauss. Kerry was a professor of electronics technology at a local community college.
 
@@ -15,6 +32,7 @@ I really like the idea of this project because it blends art with technology. An
 I want to take this in a somewhat different direction. In part this is because I'd like to take a stab at a tsunami warning system but part is simply because don't have any hydrophones on hand. Or a place to store them for that matter.
 
 So, the plan (other than stepping into it as a time permits) is do a web app which I may or may not deploy. I'd like it to add in some additional features like tsunami model or meta model. I'm probably going to do some of the analysis in SQL by way of [datasette](https://datasette.io/) and possibly [dogsheep beta](https://dogsheep.github.io/) I don't know either of these but Simon Willison seems like a top notch guy and playing with new tech is what this is all about.
+ impatient:
 
 <br><br>
 # Current Status: 1st phase done.
@@ -79,11 +97,3 @@ Valid values: 0 to 11
 
  Oddly enough, the only codes present are 1, 3, and 4 which is strange because we tend to think of earthquakes (#1) causing them.
 <br><br>
-
-
-
-
-
-
-
-
