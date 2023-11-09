@@ -31,4 +31,5 @@ def strip_commas(col1, col2):
 
 def convert_to_datetime(df):
     df['time'] = pd.to_datetime(df['time'], unit='ms')
-    return df
+    df['time'] = pd.to_datetime(df['time']).dt.strftime("%Y-%m-%d %H:%M")
+    return df 
