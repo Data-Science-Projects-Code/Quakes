@@ -1,7 +1,6 @@
 #  <p align="center">Quakes</p>
 
 ![earthquakes >2.5 ](images/updated_events.png)
-"Earthquakes on 24 June 2022")
 
 ## For the impatient:
 The code can be run in three different ways. Pick whichever one matches your interest/expertise.<br>
@@ -31,6 +30,7 @@ According to Kerry, the code was a bit of kludge. It got the data from USGS some
 
 What I really like about this project is how it blends art with technology. Even more interesting is one of hydrophones was still functional so Christina (with some help) was able to make the observers part of the installation. Another thing I found interesting is the artist as a sort of conductor. Christina had the inspiration and idea but a lot of the most fabrication and technical aspects came from others. 
 
+[Top ](#table-of-contents)
 <br><br>
 # Project Description
 
@@ -38,12 +38,13 @@ I want to take this in a somewhat different direction. In part this is because I
 
 So, the plan (other than stepping into it as a time permits) is do a web app which I may or may not deploy. I'd like it to add in some additional features like tsunami model or meta model. I'm probably going to do some of the analysis in SQL by way of [datasette](https://datasette.io/) and possibly [dogsheep beta](https://dogsheep.github.io/) I don't know either of these but Simon Willison seems like a top notch guy and playing with new tech is what this is all about.
 
+[Top ](#table-of-contents)
 <br><br>
 # Status: 1st phase done.
  - [x] pulls JSON data from USGS of earthquakes greater than magnitude 2.5 over the last 24 hrs. 
  - [x] mungs the tsunami data.
  - [x] displays map of quakes >= 2.5 over last 24 hrs using Folium because I wanted to recreate as close as I could the USGS map which is done in Leaflet.JS, which Folium is based on. 
-
+[Top ](#table-of-contents)
 <br>
 
 ## Progress and Next Steps
@@ -55,6 +56,8 @@ So, the plan (other than stepping into it as a time permits) is do a web app whi
 - [ ] Twillio integration
   - [ ] Learn Twillio API
 - [ ] Deploy and seek feedback
+
+[Top ](#table-of-contents)
 <br><br>
 
 
@@ -95,3 +98,5 @@ Valid values: 0 to 11
  - 11 - 	Astronomical Tide
 
  Oddly enough, the only codes present are 1, 3, and 4 which is strange because we tend to think of earthquakes (#1) causing them.
+
+[Top ](#table-of-contents)
