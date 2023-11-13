@@ -2,18 +2,18 @@
 
 ![earthquakes >2.5 ](images/updated_events.png)
 
-## For the impatient:
-The code itself can be run in four different ways. Pick whichever one matches your interest/expertise.<br>
- * If you want step through the code and some of the thinking involved, go though the `Quake_notes` notebook.
- *  If you want a single file pandas run, `Quakes_single.py`. Output is a `quakes_last_24_hours` in the `/images`
-folder and `quakes_last_24.pkl` in the `/data` folder. 
- * `Quakes_multi.py` which outputs the same as above.
- * `Dashboad.py` puts out a Plotly Dash dashboard of quakes. 
+## TL;DR:
+This project gets USGS data, cleans it, and displays it. The code itself can be run in four different ways. Pick whichever one matches your interest/expertise.<br>
+ * Jupyter notebook. `Quake_notes` is the all-in-one solution. Step through code, see some of the thinking involved, see the quakes display with folium map.
+ * Single data prep file. `Quakes_single.py` is a terse single pandas file. Output is `quakes_last_24_hours` in the `/images`
+folder and `quakes_last_24.pkl` in the `/data` folder. Use Dashboard.py to display to display.
+ * `Quakes_multi.py` is a set of modules which outputs the same as the Quakes_single.py file.
+ * `Dashboad.py` displays the quakes with Plotly Dash.
 
 <br><br>
 # Table of Contents
 - [Quakes](#quakes)
-  - [For the impatient:](#for-the-impatient)
+  - [TL;DR:](#tldr)
 - [Table of Contents](#table-of-contents)
 - [Background](#background)
 - [Project Description](#project-description)
