@@ -3,11 +3,13 @@
 ![earthquakes >2.5 ](images/updated_events.png)
 
 ## For the impatient:
-The code can be run in three different ways. Pick whichever one matches your interest/expertise.<br>
+The code itself can be run in four different ways. Pick whichever one matches your interest/expertise.<br>
  * If you want step through the code and some of the thinking involved, go though the `Quake_notes` notebook.
  *  If you want a single file pandas run, `Quakes_single.py`. Output is a `quakes_last_24_hours` in the `/images`
 folder and `quakes_last_24.pkl` in the `/data` folder. 
- * Otherwise, run `Quakes_multi.py`
+ * `Quakes_multi.py` which outputs the same as above.
+ * `Dashboad.py` puts out a Plotly Dash dashboard of quakes. 
+
 <br><br>
 # Table of Contents
 - [Quakes](#quakes)
@@ -17,7 +19,7 @@ folder and `quakes_last_24.pkl` in the `/data` folder.
 - [Project Description](#project-description)
 - [Status: 1st phase done.](#status-1st-phase-done)
   - [Progress and Next Steps](#progress-and-next-steps)
-- [Understanding USGS Tusnami Data](#understanding-usgs-tusnami-data)
+- [Understanding USGS Tsunami Data](#understanding-usgs-tsunami-data)
     - [Tsunami Event Validity (Valid values: -1 to 4)](#tsunami-event-validity-valid-values--1-to-4)
     - [Deaths from the Tsunami and the Source Event](#deaths-from-the-tsunami-and-the-source-event)
     - [Tsunami Cause Code: ](#tsunami-cause-code-)
@@ -41,9 +43,9 @@ So, the plan (other than stepping into it as a time permits) is do a web app whi
 [Top ](#table-of-contents)
 <br><br>
 # Status: 1st phase done.
- - [x] pulls JSON data from USGS of earthquakes greater than magnitude 2.5 over the last 24 hrs. 
- - [x] mungs the tsunami data.
- - [x] displays map of quakes >= 2.5 over last 24 hrs using Folium because I wanted to recreate as close as I could the USGS map which is done in Leaflet.JS, which Folium is based on. 
+ - [x] Pull JSON data from USGS of earthquakes greater than magnitude 2.5 over the last 24 hrs. 
+ - [x] Mung tsunami data.
+ - [x] Displays map of quakes >= 2.5 over last 24 hrs using Folium because I wanted to recreate as close as I could the USGS map which is done in Leaflet.JS, which Folium is based on. 
 [Top ](#table-of-contents)
 <br>
 
@@ -51,36 +53,37 @@ So, the plan (other than stepping into it as a time permits) is do a web app whi
 
 - [x] Contact Eric Geist at [Tsunami and Earthquake Research](https://www.usgs.gov/centers/pcmsc/science/tsunami-and-earthquake-research?qt-science_center_objects=0#qt-science_center_objects) to see if there have been more tsunami occurrences
 - [x] Get & massage data for tsunami warnings and for actual tsunamis reported
+- [x] Dash app as an interim measure
 - [ ] Develop model
 - [ ] Move code from notebook to a website
-- [ ] Twillio integration
-  - [ ] Learn Twillio API
+- [ ] Twilio integration
+  - [ ] Learn Twilio API
 - [ ] Deploy and seek feedback
 
 [Top ](#table-of-contents)
 <br><br>
 
 
-# Understanding USGS Tusnami Data
+# Understanding USGS Tsunami Data
 If you take some time to delve into the data, you're likely to wonder what do some of the values mean. Is a Tsunami Event Validity of 1 better or worse, more or less valid, or ... what than a Tsunami Event with a validity of 4? For the purposes of completeness, here is a legend for select fields along with commentary:
 
 ### <u>Tsunami Event Validity (Valid values: -1 to 4)</u>
-  - -1	erroneous entry
-  - 0	event that only caused a seiche or disturbance in an inland river
-  - 1	very doubtful tsunami
-  - 2	questionable tsunami
-  - 3	probable tsunami
-  - 4	definite tsunami
+ - -1	erroneous entry
+ - 0	event that only caused a seiche or disturbance in an inland river
+ - 1	very doubtful tsunami
+ - 2	questionable tsunami
+ - 3	probable tsunami
+ - 4	definite tsunami
 
 *Scores less than 4 will be dropped. Originally, this was to be scores less than 3 however some of the other dropped fields had the only rows with probable tsunami* 
 
 ### <u>Deaths from the Tsunami and the Source Event</u>
 When a description was found in the historical literature instead of an actual number of deaths, this value was coded and listed in the Deaths column. If the actual number of deaths was listed, a descriptor was also added for search purposes.
-  - 0	None
-  - 1	Few (~1 to 50 deaths)
-  - 2	Some (~51 to 100 deaths)
-  - 3	Many (~101 to 1000 deaths)
-  - 4	Very many (over 1000 deaths)
+ - 0	None
+ - 1	Few (~1 to 50 deaths)
+ - 2	Some (~51 to 100 deaths)
+ - 3	Many (~101 to 1000 deaths)
+ - 4	Very many (over 1000 deaths)
 
 ### <u>Tsunami Cause Code:</u> <br>
 Valid values: 0 to 11
