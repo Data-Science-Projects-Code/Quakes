@@ -7,6 +7,11 @@ def remove_prefixes(df):
              .replace("properties.", "")
              .replace("geometry.", ""))
 
+def fix_tsunami(df):
+    df['tsunami warning'] = df['tsunami'].astype('bool')
+    df.drop(columns =['tsunami'], inplace=True)
+    return df
+    
 
 def drop_useless_cols(df):
     columns_to_drop = [
