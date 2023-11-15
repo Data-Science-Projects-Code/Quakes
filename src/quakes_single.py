@@ -1,7 +1,7 @@
 import requests
 import pandas as pd
 import folium
-from folium import plugins
+
 
 data = requests.get("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_day.geojson")
 # data = requests.get("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_week.geojson")
@@ -27,6 +27,10 @@ quakes['longitude'] = quakes.coordinates.str[0]
 quakes['latitude'] = quakes.coordinates.str[1]
 quakes['depth'] = quakes.coordinates.str[2]
 quakes.drop(['coordinates'], axis=1, inplace=True)
+
+# convert and relable tsunami column
+quakes['tsunami warning'] = quakes['tsunami'].astype('bool')
+quakes.drop(columns =['tsunami'], inplace=True)
 
 print("Data downloaded and cleaned. Now to display it")
 
