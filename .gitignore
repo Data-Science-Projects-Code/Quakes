@@ -8,7 +8,7 @@ MacOS
 
 # Specific to this project
 *.pkl
-*.html
+images/*.html
 
 # Used to test minor edits but definitely not wanted
 /notebooks/Untitled.ipynb
