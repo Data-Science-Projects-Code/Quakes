@@ -1,6 +1,6 @@
 from imports.transfer_data import check_for_data, get_quake_data, save_data
-from imports.mung_data import remove_prefixes, drop_useless_cols, strip_commas, convert_to_datetime, fix_tsunami
-from imports.format_data import splitLatLonDepth
+from imports.mung_data import remove_prefixes, drop_useless_cols, strip_commas, convert_to_datetime
+from imports.format_data import splitLatLonDepth, fix_tsunami
 
 if __name__ == "__main__":
     if check_for_data():
