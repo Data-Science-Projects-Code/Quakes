@@ -4,7 +4,7 @@ import pandas as pd
 
 
 def check_for_data():
-    return os.path.isfile("../data/quake.csv")
+    return os.path.isfile("../data/quakes_last_24.pkl")
 
 
 def get_quake_data():
@@ -16,4 +16,4 @@ def get_quake_data():
 
 
 def save_data(df):
-    df.to_csv("../data/quake.csv")
+    df.to_pickle("../data/quakes_last_24.pkl")
