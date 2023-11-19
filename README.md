@@ -5,7 +5,7 @@
 ## TL;DR:
 This project gets USGS data, cleans it, and displays it. The code itself can be run in three different ways, two of which output to Dash; one is a self-contained notebook. Pick whichever one matches your interest/expertise.<br>
  * Jupyter notebook. `Quake_notes` is the all-in-one solution. Step through code, see some of the thinking involved, see the quakes display with folium map.
- * Single data prep file. `Quakes_single.py` is a terse single pandas file. Output is `quakes_last_24_hours` in the `/images`
+ * Single data prep file. `Quakes_single.py` is a terse single pandas file. Output is `quakes_last_24_hours.html` (for now) in the `/images`
 folder and `quakes_last_24.pkl` in the `/data` folder. Use Dashboard.py to display to display.
  * `Quakes_multi.py` is a set of modules which outputs the same as the Quakes_single.py file.
  * `Dashboad.py` displays the quakes with Plotly Dash.
@@ -55,8 +55,6 @@ So, the plan (other than stepping into it as a time permits) is do a web app whi
  - [x] Displays map of quakes >= 2.5 over last 24 hrs using Folium because I wanted to recreate as close as I could the USGS map which is done in Leaflet.JS, which Folium is based on. 
 
 ## Phase 2 -  Pre-model development
-
-
 - [x] Contact Eric Geist at [Tsunami and Earthquake Research](https://www.usgs.gov/centers/pcmsc/science/tsunami-and-earthquake-research?qt-science_center_objects=0#qt-science_center_objects) to see if there have been more tsunami occurrences
 - [x] Get & massage data for tsunami warnings and for actual tsunamis reported
 - [x] Dash app as an interim measure
@@ -67,6 +65,7 @@ So, the plan (other than stepping into it as a time permits) is do a web app whi
 - [ ] Develop model
 - [ ] Twilio integration
   - [ ] Learn Twilio API
+- [ ] Find a way to export a photo as .png rather than as `quakes_last_24_hours.html`
 - [ ] Deploy and seek feedback
   
 <br>
@@ -74,8 +73,9 @@ So, the plan (other than stepping into it as a time permits) is do a web app whi
 [Top ](#table-of-contents)
 <br><br>
 
+
 # Understanding USGS Tsunami Data
-If you take some time to delve into the data, you're likely to wonder what do some of the values mean. Is a Tsunami Event Validity of 1 better or worse, more or less valid, or ... what than a Tsunami Event with a validity of 4? For the purposes of completeness, here is a legend for select fields along with commentary:
+Just to be clear, this is about tsunamis and not earthquakes. If you take some time to delve into the data, you're likely to wonder what do some of the values mean. Is a Tsunami Event Validity of 1 better or worse, more or less valid, or ... what than a Tsunami Event with a validity of 4? For the purposes of completeness, here is a legend for select fields along with commentary:
 
 ### <u>Tsunami Event Validity (Valid values: -1 to 4)</u>
  - -1	erroneous entry
