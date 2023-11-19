@@ -3,7 +3,7 @@
 ![earthquakes >2.5 ](images/updated_events.png)
 
 ## TL;DR:
-This project gets USGS data, cleans it, and displays it. The code itself can be run in four different ways. Pick whichever one matches your interest/expertise.<br>
+This project gets USGS data, cleans it, and displays it. The code itself can be run in three different ways, two of which output to Dash; one is a self-contained notebook. Pick whichever one matches your interest/expertise.<br>
  * Jupyter notebook. `Quake_notes` is the all-in-one solution. Step through code, see some of the thinking involved, see the quakes display with folium map.
  * Single data prep file. `Quakes_single.py` is a terse single pandas file. Output is `quakes_last_24_hours` in the `/images`
 folder and `quakes_last_24.pkl` in the `/data` folder. Use Dashboard.py to display to display.
@@ -11,6 +11,7 @@ folder and `quakes_last_24.pkl` in the `/data` folder. Use Dashboard.py to displ
  * `Dashboad.py` displays the quakes with Plotly Dash.
 
 <br><br>
+
 # Table of Contents
 - [Quakes](#quakes)
   - [TL;DR:](#tldr)
@@ -18,7 +19,9 @@ folder and `quakes_last_24.pkl` in the `/data` folder. Use Dashboard.py to displ
 - [Background](#background)
 - [Project Description](#project-description)
 - [Status: 1st phase done.](#status-1st-phase-done)
-  - [Progress and Next Steps](#progress-and-next-steps)
+  - [Phase 1 - Steps up to simple display](#phase-1---steps-up-to-simple-display)
+  - [Phase 2 -  Pre-model development](#phase-2----pre-model-development)
+  - [Phase 3 - Model development and display](#phase-3---model-development-and-display)
 - [Understanding USGS Tsunami Data](#understanding-usgs-tsunami-data)
     - [Tsunami Event Validity (Valid values: -1 to 4)](#tsunami-event-validity-valid-values--1-to-4)
     - [Deaths from the Tsunami and the Source Event](#deaths-from-the-tsunami-and-the-source-event)
@@ -26,43 +29,50 @@ folder and `quakes_last_24.pkl` in the `/data` folder. Use Dashboard.py to displ
 
  
 # Background 
-A few years ago I started a makerspace with a group of really good folks. Along the way we met an artist and instructor, Christina Weisner, who was in the early stages of doing a project and consulting with with one of our members, Kerry Krauss. Kerry was a professor of electronics technology at a local community college.
+A few years ago I started a makerspace with a group of really good folks. Along the way we met an artist and instructor, [Christina Weisner](https://www.christinaweisner.com/about), who was in the early stages of doing a project and consulting with with one of our members, Kerry Krauss. Kerry was a professor of electronics technology at the local community college.
 
-According to Kerry, the code was a bit of kludge. It got the data from USGS somehow (I'm not sure if was RSS, Atom or JSON), processed it and sent a signal to a bunch of Arduino Uno boards by *sound*. Each Arduino was used to actuate one of the seismometers Christina bought. That's seems nuts but Kerry's rationale was, since they were having to troubleshoot at each location, it was easier to troubleshoot than whipping out a multimeter every time. You can see Christina & Kerry and learn more about her project [here](https://www.youtube.com/embed/uK_es620K0w).
+According to Kerry, the code was a bit of kludge. It got the data from USGS somehow; I'm not sure if was RSS, Atom, or JSON. From there, the data was processed and sent a signal to a bunch of Arduino Uno boards by *sound*. Each Arduino was used to actuate one of the seismometers Christina bought. That might seem nuts but Kerry's rationale was, since they were having to troubleshoot at each location, audio was easier to troubleshoot than whipping out a multimeter every time. You can see Christina & Kerry and learn more about her project [here](https://www.youtube.com/embed/uK_es620K0w).
 
-What I really like about this project is how it blends art with technology. Even more interesting is one of hydrophones was still functional so Christina (with some help) was able to make the observers part of the installation. Another thing I found interesting is the artist as a sort of conductor. Christina had the inspiration and idea but a lot of the most fabrication and technical aspects came from others. 
+What I really liked about this project is how it blended art with technology. Even more interesting is one of hydrophones was still functional so Christina (with some help) was able to make the observers part of the installation. Another thing I found interesting was the artist as a sort of conductor rather than as the sole author. Christina had the inspiration and idea but almost all the most fabrication and technical aspects came from others. 
 
 [Top ](#table-of-contents)
 <br><br>
-# Project Description
 
-I want to take this in a somewhat different direction. In part this is because I'd like to take a stab at a tsunami warning system but part is simply because don't have any hydrophones on hand. Or a place to store them for that matter.
+# Project Description
+I want to take this in a somewhat different direction. In part this is because I'd like to take a stab at a tsunami warning system. But part is simply because I don't have any hydrophones or for that matter anywhere to store them.
 
 So, the plan (other than stepping into it as a time permits) is do a web app which I may or may not deploy. I'd like it to add in some additional features like tsunami model or meta model. I'm probably going to do some of the analysis in SQL by way of [datasette](https://datasette.io/) and possibly [dogsheep beta](https://dogsheep.github.io/) I don't know either of these but Simon Willison seems like a top notch guy and playing with new tech is what this is all about.
 
 [Top ](#table-of-contents)
 <br><br>
+
 # Status: 1st phase done.
- - [x] Pull JSON data from USGS of earthquakes greater than magnitude 2.5 over the last 24 hrs. 
- - [x] Mung tsunami data.
- - [x] Displays map of quakes >= 2.5 over last 24 hrs using Folium because I wanted to recreate as close as I could the USGS map which is done in Leaflet.JS, which Folium is based on. 
 [Top ](#table-of-contents)
 <br>
+## Phase 1 - Steps up to simple display
+ - [x] Pull JSON data from USGS of earthquakes greater than magnitude 2.5 over the last 24 hrs. 
+ - [x] Mung earthquake data.
+ - [x] Displays map of quakes >= 2.5 over last 24 hrs using Folium because I wanted to recreate as close as I could the USGS map which is done in Leaflet.JS, which Folium is based on. 
 
-## Progress and Next Steps
+## Phase 2 -  Pre-model development
+
 
 - [x] Contact Eric Geist at [Tsunami and Earthquake Research](https://www.usgs.gov/centers/pcmsc/science/tsunami-and-earthquake-research?qt-science_center_objects=0#qt-science_center_objects) to see if there have been more tsunami occurrences
 - [x] Get & massage data for tsunami warnings and for actual tsunamis reported
 - [x] Dash app as an interim measure
+- [ ] Contact Lisa Wald of USGS
+- [ ] Get tsunami warning/occurrence data
+
+## Phase 3 - Model development and display
 - [ ] Develop model
-- [ ] Move code from notebook to a website
 - [ ] Twilio integration
   - [ ] Learn Twilio API
 - [ ] Deploy and seek feedback
+  
+<br>
 
 [Top ](#table-of-contents)
 <br><br>
-
 
 # Understanding USGS Tsunami Data
 If you take some time to delve into the data, you're likely to wonder what do some of the values mean. Is a Tsunami Event Validity of 1 better or worse, more or less valid, or ... what than a Tsunami Event with a validity of 4? For the purposes of completeness, here is a legend for select fields along with commentary:
