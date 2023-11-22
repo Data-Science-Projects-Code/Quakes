@@ -42,15 +42,15 @@ def update_map(mag_range, tsunami):
     filtered_df = df[(df['mag'] >= mag_range[0]) & (df['mag'] <= mag_range[1])]
     
     if tsunami != 'all':
-        filtered_df = filtered_df[filtered_df['tsunami'] == (1 if tsunami == 'yes' else 0)]
+        filtered_df = filtered_df[filtered_df['tsunami warning'] == (1 if tsunami == 'yes' else 0)]
     
     fig = px.scatter_geo(filtered_df,
         lat = 'latitude',
         lon = 'longitude',
         size = 'mag',
-        color = 'tsunami',
+        color = 'tsunami warning',
         opacity = .3,
-        #width = ['orange', 'blue'],
+        color_discrete_sequence = ['orange', 'blue'],
         hover_name = 'place',
         projection = 'natural earth')
     return fig
