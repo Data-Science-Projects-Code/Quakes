@@ -6,7 +6,6 @@ import folium
 data = requests.get(
     "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_day.geojson"
 )
-# data = requests.get("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_week.geojson")
 jsondata = data.json()
 quakes = pd.json_normalize(jsondata["features"])
 
@@ -42,7 +41,7 @@ quakes["time"] = pd.to_datetime(quakes["time"], unit="ms")
 quakes["datetime"] = pd.to_datetime(quakes["time"]).dt.strftime("%Y-%m-%d %H:%M")
 quakes.drop(["time"], axis=1, inplace=True)
 
-# Split the coordinates column into longitude and latitude columns. Round to five decimals points.
+# Split the coordinates column into longitude and latitude columns. 
 quakes["longitude"] = quakes.coordinates.str[0]
 quakes["latitude"] = quakes.coordinates.str[1]
 quakes["depth"] = quakes.coordinates.str[2]
@@ -70,11 +69,10 @@ folium.plugins.MousePosition(separator=' / ', prefix="Lat/Long: ", lat_formatter
 """
 
 # Scale circle size to Magnitiude
-
 for i, row in quakes.iterrows():
     folium.CircleMarker(
         (row.latitude, row.longitude),
-        radius=row.mag * 2.2,
+        radius=row.mag ** 1.9,
         color="red",
         weight=0,
         opacity=0.4,
