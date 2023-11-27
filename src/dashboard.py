@@ -1,20 +1,25 @@
 import pandas as pd
+import numpy as np
+import geopandas as gpd
+import shapely.geometry
+import plotly.graph_objects as go
 import plotly.express as px
 import dash
 from dash import dcc
 from dash import html
 from dash.dependencies import Input, Output
 
+
 df = pd.read_pickle('../data/quakes_last_24.pkl')
+geo_df = gpd.read_file('../data/GeoJSON/PB2002_boundaries.json')
 app = dash.Dash(__name__)
 
-# Add external stylesheets
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 app.layout = html.Div([
-    html.H1('Earthquakes last 24 hours', style={'textAlign': 'center'}),  # Add a title
-    dcc.Graph(id='map', style={'height': '700px'}), 
+    html.H1('Earthquakes last 24 hours', style={'textAlign': 'center'}),
+    dcc.Graph(id='map', style={'height': '700px'}),
     html.Div(dcc.RangeSlider(
         id='mag-slider',
         min=2.5,
@@ -31,16 +36,15 @@ app.layout = html.Div([
                  {'label': 'No Tsunami Warning', 'value': 'no'}],
         value='all',
     )
-], style={'backgroundColor': '#FAFAFA'})  # Change the background color
+], style={'backgroundColor': '#FAFAFA'})
+
 
 @app.callback(
     Output('map', 'figure'),
     [Input('mag-slider', 'value'),
      Input('tsunami-filter', 'value')])
-
 def update_map(mag_range, tsunami):
     filtered_df = df[(df['mag'] >= mag_range[0]) & (df['mag'] <= mag_range[1])]
-    
     if tsunami != 'all':
         filtered_df = filtered_df[filtered_df['tsunami warning'] == (1 if tsunami == 'yes' else 0)]
     
@@ -53,7 +57,31 @@ def update_map(mag_range, tsunami):
         color_discrete_sequence = ['orange', 'blue'],
         hover_name = 'place',
         projection = 'natural earth')
+
+    lats = []
+    lons = []
+    names = []
+
+    for feature, name in zip(geo_df.geometry, geo_df.LAYER):
+        if isinstance(feature, shapely.geometry.linestring.LineString):
+            linestrings = [feature]
+        elif isinstance(feature, shapely.geometry.multilinestring.MultiLineString):
+            linestrings = feature.geoms
+        else:
+            continue
+        for linestring in linestrings:
+            x, y = linestring.xy
+            lats = np.append(lats, y)
+            lons = np.append(lons, x)
+            names = np.append(names, [name]*len(y))
+            lats = np.append(lats, None)
+            lons = np.append(lons, None)
+            names = np.append(names, None)
+
+    fig.add_trace(go.Scattergeo(lat=lats, lon=lons, mode='lines', line=dict(width=1, color='black')))
+
     return fig
+
 
 if __name__ == '__main__':
     app.run_server(debug=True)
