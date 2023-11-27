@@ -19,42 +19,54 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 app.layout = html.Div([
     html.Div([
         html.H1('Earthquakes last 24 hours', style={'textAlign': 'center'}),
-        dcc.Graph(id='map', style={'height': '700px'}),
+        dcc.Graph(id='map', style={'height': '700px', 'padding': '2px'}),
         html.Div(dcc.RangeSlider(
             id='mag-slider',
             min=2.5,
             max=9.0,
             step=0.1,
             value=[2.5, 9.0],
-            marks={i: {'label': str(i), 'style': {'transform': 'rotate(0deg)'}}
-                        for i in range(3, 10)}
-        ), style={'width': '100%', 'margin': 'auto'}),  # Make the slider the length of the map
-        dcc.RadioItems(
-            id='tsunami-filter',
-            options=[{'label': 'All', 'value': 'all'},
-                     {'label': 'Tsunami Warning Issued', 'value': 'yes'},
-                     {'label': 'No Tsunami Warning', 'value': 'no'}],
-            value='all',
-        ),
-        dcc.RadioItems(
-            id='boundary-toggle',
-            options=[{'label': 'Show Boundary', 'value': 'show'},
-                     {'label': 'Hide Boundary', 'value': 'hide'}],
-            value='show',
-        )
-    ], style={'width': '66%', 'display': 'inline-block', 'vertical-align': 'top'}),
+            marks={i: {'label': str(i), 'style': {'transform': 'rotate(0deg)', 'font-size': '20px'}}
+                        for i in range(3, 10)},
+            included=False
+        ), style={'width': '100%', 'margin': 'auto', 'padding': '2px'}),  # Make the slider the length of the map
+        html.Div([
+            dcc.RadioItems(
+                id='tsunami-filter',
+                options=[{'label': 'All', 'value': 'all'},
+                         {'label': 'Tsunami Warning Issued', 'value': 'yes'},
+                         {'label': 'No Tsunami Warning', 'value': 'no'}],
+                value='all',
+                inline=True
+            ),
+            dcc.RadioItems(
+                id='boundary-toggle',
+                options=[{'label': 'Show Boundary', 'value': 'show'},
+                         {'label': 'Hide Boundary', 'value': 'hide'}],
+                value='show',
+                inline=True
+            )
+        ], style={'padding': '2px'})
+    ], style={'width': '66%', 'display': 'inline-block', 'vertical-align': 'top', 'padding': '2px'}),
     html.Div([
         html.H2('Quake Details', style={'textAlign': 'center'}),
         dcc.RadioItems(
             id='sort-by',
             options=[{'label': 'Sort by Magnitude', 'value': 'mag'},
                      {'label': 'Sort by Time', 'value': 'datetime'}],
-            value='mag',
+            value='datetime',
+            inline=True
+        ),
+        dcc.RadioItems(
+            id='sort-order',
+            options=[{'label': 'Ascending', 'value': 'asc'},
+                     {'label': 'Descending', 'value': 'desc'}],
+            value='desc',
+            inline=True
         ),
         html.Div(id='quake-details')
-    ], style={'width': '33%', 'display': 'inline-block', 'vertical-align': 'top'})
+    ], style={'width': '33%', 'display': 'inline-block', 'vertical-align': 'top', 'padding': '2px'})
 ], style={'backgroundColor': '#FAFAFA'})
-
 
 @app.callback(
     Output('map', 'figure'),
@@ -101,14 +113,13 @@ def update_map(mag_range, tsunami, boundary):
 
     return fig
 
-
 @app.callback(
     Output('quake-details', 'children'),
-    [Input('sort-by', 'value')])
-def update_quake_details(sort_by):
-    sorted_df = df.sort_values(sort_by, ascending=False)
+    [Input('sort-by', 'value'),
+     Input('sort-order', 'value')])
+def update_quake_details(sort_by, sort_order):
+    sorted_df = df.sort_values(sort_by, ascending=(sort_order == 'asc'))
     return html.Ul([html.Li(f"{row['place']}, {row['datetime']}, {row['mag']}") for _, row in sorted_df.iterrows()])
-
 
 if __name__ == '__main__':
     app.run_server(debug=True)
