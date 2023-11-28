@@ -16,7 +16,7 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 app.layout = html.Div([
-    html.H1('Earthquake Watching', style={'textAlign': 'center'}),
+    html.H1('Worldwide Earthquakes over the Last 24 Hours', style={'textAlign': 'center'}),
     html.Div([
         html.H2('World View', style={'textAlign': 'center'}),
         dcc.Graph(id='map', style={'height': '700px', 'padding': '2px'}),
@@ -51,7 +51,7 @@ app.layout = html.Div([
 
 
     html.Div([
-        html.H2('Quake Details', style={'textAlign': 'center'}),
+        html.H2('Details', style={'textAlign': 'center'}),
         dcc.RadioItems(
             id='sort-by',
             options=[{'label': 'Sort by Magnitude', 'value': 'mag'},
@@ -66,9 +66,10 @@ app.layout = html.Div([
             value='desc',
             inline=True
         ),
-        html.Div(id='quake-details')
+        html.Div(id='quake-details', style={'overflow': 'auto', 'height': '670px', 'padding':'10px'})
     ], style={'width': '33%', 'display': 'inline-block', 'vertical-align': 'top', 'padding': '2px'})
 ], style={'backgroundColor': '#FAFAFA'})
+
 
 @app.callback(
     Output('map', 'figure'),
@@ -124,7 +125,5 @@ def update_quake_details(sort_by, sort_order):
     return html.Ul([html.Li(f"{row['place']}, {row['datetime']}, {row['mag']}") for _, row in sorted_df.iterrows()])
 
 
-
 if __name__ == '__main__':
     app.run_server(port=8010, debug=True)
-
