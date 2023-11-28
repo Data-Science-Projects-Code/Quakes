@@ -11,14 +11,14 @@ from dash.dependencies import Input, Output
 
 df = pd.read_pickle('../data/quakes_last_24.pkl')
 geo_df = gpd.read_file('../data/GeoJSON/PB2002_boundaries.json')
-app = dash.Dash(__name__)
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 app.layout = html.Div([
+    html.H1('Earthquake Watching', style={'textAlign': 'center'}),
     html.Div([
-        html.H1('Earthquakes last 24 hours', style={'textAlign': 'center'}),
+        html.H2('World View', style={'textAlign': 'center'}),
         dcc.Graph(id='map', style={'height': '700px', 'padding': '2px'}),
         html.Div(dcc.RangeSlider(
             id='mag-slider',
@@ -29,7 +29,7 @@ app.layout = html.Div([
             marks={i: {'label': str(i), 'style': {'transform': 'rotate(0deg)', 'font-size': '20px'}}
                         for i in range(3, 10)},
             included=False
-        ), style={'width': '100%', 'margin': 'auto', 'padding': '2px'}),  # Make the slider the length of the map
+        ), style={'width': '100%', 'margin': 'auto', 'padding': '2px'}),  
         html.Div([
             dcc.RadioItems(
                 id='tsunami-filter',
@@ -48,6 +48,8 @@ app.layout = html.Div([
             )
         ], style={'padding': '2px'})
     ], style={'width': '66%', 'display': 'inline-block', 'vertical-align': 'top', 'padding': '2px'}),
+
+
     html.Div([
         html.H2('Quake Details', style={'textAlign': 'center'}),
         dcc.RadioItems(
@@ -121,5 +123,8 @@ def update_quake_details(sort_by, sort_order):
     sorted_df = df.sort_values(sort_by, ascending=(sort_order == 'asc'))
     return html.Ul([html.Li(f"{row['place']}, {row['datetime']}, {row['mag']}") for _, row in sorted_df.iterrows()])
 
+
+
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(port=8010, debug=True)
+
