@@ -142,14 +142,38 @@ def update_map(mag_range, tsunami, boundary):
 
     return fig
 
-
+"""
 @app.callback(
     Output('quake-details', 'children'),
     [Input('sort-by', 'value'),
      Input('sort-order', 'value')])
-def update_quake_details(sort_by, sort_order):
+def update_quake_details(sort_by, sort_order, tsunami):
     sorted_df = df.sort_values(sort_by, ascending=(sort_order == 'asc'))
     return html.Ul([html.Li(f"{row['place']}, {row['datetime']}, {row['mag']}") for _, row in sorted_df.iterrows()])
+"""
+
+@app.callback(
+    Output('quake-details', 'children'),
+    [Input('sort-by', 'value'),
+     Input('sort-order', 'value'),
+     Input('tsunami-filter', 'value')])
+def update_quake_details(sort_by, sort_order, tsunami):
+    sorted_df = df.sort_values(sort_by, ascending=(sort_order == 'asc'))
+    
+    if tsunami != 'all':
+        sorted_df = sorted_df[sorted_df['tsunami warning'] == (1 if tsunami == 'yes' else 0)]
+
+    quake_details = []
+
+    for _, row in sorted_df.iterrows():
+        # Customize text color based on tsunami warning
+        text_color = 'blue' if row['tsunami warning'] else 'black'
+        
+        description = f"{row['place']}, {row['datetime']}, Magnitude: {row['mag']}, Depth: {row['depth']} km"
+        
+        quake_details.append(html.Li(description, style={'color': text_color}))
+
+    return quake_details
 
 
 if __name__ == '__main__':
