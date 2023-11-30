@@ -76,7 +76,7 @@ app.layout = html.Div([
     ], style={'width': '33%', 'display': 'inline-block', 'vertical-align': 'top', 'padding': '2px'})
 ], style={'backgroundColor': '#FAFAFA'})
 
-
+'''
 @app.callback(
     Output('map', 'figure'),
     [Input('mag-slider', 'value'),
@@ -93,10 +93,30 @@ def update_map(mag_range, tsunami, boundary):
         size = 'mag',
         color = 'tsunami warning',
         opacity = .3,
-        color_discrete_sequence = ['orange', 'blue'],
+        color_discrete_map = [True: 'blue', False: 'orange'],
         hover_name = 'place',
         projection = 'natural earth')
+'''
 
+@app.callback(
+    Output('map', 'figure'),
+    [Input('mag-slider', 'value'),
+     Input('tsunami-filter', 'value'),
+     Input('boundary-toggle', 'value')])
+def update_map(mag_range, tsunami, boundary):
+    filtered_df = df[(df['mag'] >= mag_range[0]) & (df['mag'] <= mag_range[1])]
+    if tsunami != 'all':
+        filtered_df = filtered_df[filtered_df['tsunami warning'] == (1 if tsunami == 'yes' else 0)]
+
+    fig = px.scatter_geo(filtered_df,
+        lat='latitude',
+        lon='longitude',
+        size='mag',
+        color='tsunami warning',  # Use 'tsunami warning' directly for color assignment
+        opacity=0.3,
+        color_discrete_map={True: 'blue', False: 'orange'},  # Map True to blue and False to orange
+        hover_name='place',
+        projection='natural earth')
     if boundary == 'show':
         lats = []
         lons = []
