@@ -16,7 +16,7 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 app.layout = html.Div([
-    html.H1('Worldwide Earthquakes over the Last 24 Hours', style={'textAlign': 'center'}),
+    html.H1('Earthquakes over the Last 24 Hours', style={'textAlign': 'center'}),
     html.Div([
         html.H2('World View', style={'textAlign': 'center'}),
         dcc.Graph(id='map', style={'height': '700px', 'padding': '2px'}),
@@ -28,8 +28,9 @@ app.layout = html.Div([
             value=[2.5, 9.0],
             marks={i: {'label': str(i), 'style': {'transform': 'rotate(0deg)', 'font-size': '20px'}}
                         for i in range(3, 10)},
-            included=False
-        ), style={'width': '100%', 'margin': 'auto', 'padding': '2px'}),  
+            included=True
+        ), style={'width': '100%', 'margin': 'auto', 'padding': '2px'}),
+
         html.Div([
             dcc.RadioItems(
                 id='tsunami-filter',
@@ -41,8 +42,8 @@ app.layout = html.Div([
             ),
             dcc.RadioItems(
                 id='boundary-toggle',
-                options=[{'label': 'Show Boundary', 'value': 'show'},
-                         {'label': 'Hide Boundary', 'value': 'hide'}],
+                options=[{'label': 'Show Major Fault Lines', 'value': 'show'},
+                         {'label': 'Hide Major Fault Lines', 'value': 'hide'}],
                 value='show',
                 inline=True
             )
@@ -51,11 +52,16 @@ app.layout = html.Div([
 
 
     html.Div([
-        html.H2('Details', style={'textAlign': 'center'}),
+        html.H2('Today\'s Earthquakes Sorted By', style={'textAlign': 'center'}),
+        
+        html.H4([
         dcc.RadioItems(
             id='sort-by',
-            options=[{'label': 'Sort by Magnitude', 'value': 'mag'},
-                     {'label': 'Sort by Time', 'value': 'datetime'}],
+                options=[{'label': 'Magnitude', 'value': 'mag'},
+                         {'label': 'Time', 'value': 'datetime'},
+                         {'label': 'Depth', 'value': 'depth'},
+
+                         ],
             value='datetime',
             inline=True
         ),
@@ -65,7 +71,7 @@ app.layout = html.Div([
                      {'label': 'Descending', 'value': 'desc'}],
             value='desc',
             inline=True
-        ),
+        )]),
         html.Div(id='quake-details', style={'overflow': 'auto', 'height': '670px', 'padding':'10px'})
     ], style={'width': '33%', 'display': 'inline-block', 'vertical-align': 'top', 'padding': '2px'})
 ], style={'backgroundColor': '#FAFAFA'})
@@ -115,6 +121,7 @@ def update_map(mag_range, tsunami, boundary):
         fig.add_trace(go.Scattergeo(lat=lats, lon=lons, mode='lines', line=dict(width=1, color='black')))
 
     return fig
+
 
 @app.callback(
     Output('quake-details', 'children'),
