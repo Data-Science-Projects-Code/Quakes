@@ -222,6 +222,38 @@ def update_map(mag_range, tsunami, boundary):
         projection="natural earth",
     )
 
+    if boundary == 'show':
+        lats = []
+        lons = []
+        names = []
+
+        for feature, name in zip(geo_df.geometry, geo_df.LAYER):
+            if isinstance(feature, shapely.geometry.linestring.LineString):
+                linestrings = [feature]
+            elif isinstance(feature, shapely.geometry.multilinestring.MultiLineString):
+                linestrings = feature.geoms
+            else:
+                continue
+            for linestring in linestrings:
+                x, y = linestring.xy
+                lats = np.append(lats, y)
+                lons = np.append(lons, x)
+                names = np.append(names, [name]*len(y))
+                lats = np.append(lats, None)
+                lons = np.append(lons, None)
+                names = np.append(names, None)
+
+        fig.add_trace(go.Scattergeo(lat=lats, lon=lons, mode='lines', line=dict(width=1, color='black'), name='Major Faultlines'))
+
+    fig.update_layout(legend_title_text='Tsunami Warning', legend_tracegroupgap=10)
+
+    return fig
+
+
+
+
+
+'''
     if boundary == "show":
         lats = []
         lons = []
@@ -250,7 +282,7 @@ def update_map(mag_range, tsunami, boundary):
         )
     fig.update_geos(center=dict(lat=0, lon=-150), projection_rotation=dict(lon=-150))
     return fig
-
+'''
 
 @app.callback(
     Output("quake-details", "children"),
