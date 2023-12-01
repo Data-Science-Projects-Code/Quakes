@@ -4,6 +4,7 @@ import geopandas as gpd
 import shapely.geometry
 import plotly.graph_objects as go
 import plotly.express as px
+import plotly.graph_objects as go
 import dash
 from dash import dcc
 from dash import html
@@ -243,11 +244,11 @@ def update_map(mag_range, tsunami, boundary):
                 names = np.append(names, None)
 
         fig.add_trace(
-            go.Scattergeo(
+        go.Scattergeo(
                 lat=lats, lon=lons, mode="lines", line=dict(width=1, color="black")
             )
         )
-
+    fig.update_geos(center=dict(lat=0, lon=-150), projection_rotation=dict(lon=-150))
     return fig
 
 
