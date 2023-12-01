@@ -17,96 +17,104 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 
 app.layout = dbc.Container([
+    # Header
     dbc.Row([
-        dbc.Col(html.H1('Earthquakes over the Last 24 Hours', className='text-center mb-4'), width=12),
+        dbc.Col(html.H1('Earthquakes over the Last 24 Hours', className='text-center mb-4'),
+                width=12, style={'padding': '5px'})
     ]),
-    
+
+    # Main content
     dbc.Row([
-        dbc.Col([
-            html.H2('World View', className='text-center mb-3'),
-            dcc.Graph(
-                id='map',
-                style={'height': '700px'},
-                clickData={'points': []}
-            ),
-            dbc.Row([
-                dbc.Col([
-                    html.Label('Magnitude Range'),
-                    dcc.RangeSlider(
-                        id='mag-slider',
-                        min=2.5,
-                        max=9.0,
-                        step=0.1,
-                        value=[2.5, 9.0],
-                        marks={i: {'label': str(i), 'style': {'transform': 'rotate(0deg)', 'font-size': '12px'}}
-                               for i in range(3, 10)},
-                        included=True,
-                    ),
-                ], className='mt-3'),
-            ]),
-            dbc.Row([
-                dbc.Col([
-                    dbc.RadioItems(
-                        id='tsunami-filter',
-                        options=[
-                            {'label': 'All', 'value': 'all'},
-                            {'label': 'Tsunami Warning Issued', 'value': 'yes'},
-                            {'label': 'No Tsunami Warning', 'value': 'no'}
-                        ],
-                        value='all',
-                        inline=True
-                    ),
-                ], className='mt-3'),
-                dbc.Col([
-                    dbc.RadioItems(
-                        id='boundary-toggle',
-                        options=[
-                            {'label': 'Show Major Fault Lines', 'value': 'show'},
-                            {'label': 'Hide Major Fault Lines', 'value': 'hide'}
-                        ],
-                        value='show',
-                        inline=True
-                    ),
-                ], className='mt-3'),
-            ]),
-        ], width=8),
-
-    dbc.Col([
-        html.H2('Today\'s Earthquakes Sorted By', className='text-center mb-3'),
-        dbc.Row([
-            dbc.Col([
-                dbc.RadioItems(
-                    id='sort-by',
-                    options=[
-                        {'label': 'Magnitude', 'value': 'mag'},
-                        {'label': 'Time', 'value': 'datetime'},
-                        {'label': 'Depth', 'value': 'depth'},
-                    ],
-                    value='datetime',
-                    inline=True
+        # Map (2/3 width)
+        dbc.Col(
+            dbc.Container([
+                html.H2('World View', className='text-center mb-3'),
+                dcc.Graph(
+                    id='map',
+                    style={'height': '700px'},
+                    clickData={'points': []}
                 ),
-            ], width=6),
-            dbc.Col([
-                dbc.RadioItems(
-                    id='sort-order',
-                    options=[
-                        {'label': 'Ascending', 'value': 'asc'},
-                        {'label': 'Descending', 'value': 'desc'}
-                    ],
-                    value='desc',
-                    inline=True
-                ),
-            ], width=6),
-        ]),
-        dbc.ListGroup(id='quake-details', style={'overflow': 'auto', 'max-height': '670px', 'padding': '10px'}),
-    ], width=4),
-])
- 
+                dbc.Row([
+                    dbc.Col([
+                        html.Label('Magnitude Range'),
+                        dcc.RangeSlider(
+                            id='mag-slider',
+                            min=2.5,
+                            max=9.0,
+                            step=0.1,
+                            value=[2.5, 9.0],
+                            marks={i: {'label': str(i), 'style': {'transform': 'rotate(0deg)', 'font-size': '12px'}}
+                                   for i in range(3, 10)},
+                            included=True,
+                        ),
+                    ], className='mt-3'),
+                ]),
+                dbc.Row([
+                    dbc.Col([
+                        dbc.RadioItems(
+                            id='tsunami-filter',
+                            options=[
+                                {'label': 'All', 'value': 'all'},
+                                {'label': 'Tsunami Warning Issued', 'value': 'yes'},
+                                {'label': 'No Tsunami Warning', 'value': 'no'}
+                            ],
+                            value='all',
+                            inline=True
+                        ),
+                    ], className='mt-3'),
+                    dbc.Col([
+                        dbc.RadioItems(
+                            id='boundary-toggle',
+                            options=[
+                                {'label': 'Show Major Fault Lines', 'value': 'show'},
+                                {'label': 'Hide Major Fault Lines', 'value': 'hide'}
+                            ],
+                            value='show',
+                            inline=True
+                        ),
+                    ], className='mt-3'),
+                ]),
+            ]),
+            width=8
+        ),
 
+        # Earthquake List (1/3 width)
+        dbc.Col(
+            dbc.Container([
+                html.H2('Today\'s Earthquakes Sorted By', className='text-center mb-3'),
+                dbc.Row([
+                    dbc.Col([
+                        dbc.RadioItems(
+                            id='sort-by',
+                            options=[
+                                {'label': 'Magnitude', 'value': 'mag'},
+                                {'label': 'Time', 'value': 'datetime'},
+                                {'label': 'Depth', 'value': 'depth'},
+                            ],
+                            value='datetime',
+                            inline=True
+                        ),
+                    ], width=6),
+                    dbc.Col([
+                        dbc.RadioItems(
+                            id='sort-order',
+                            options=[
+                                {'label': 'Ascending', 'value': 'asc'},
+                                {'label': 'Descending', 'value': 'desc'}
+                            ],
+                            value='desc',
+                            inline=True
+                        ),
+                    ], width=6),
+                ]),
+                dbc.ListGroup(id='quake-details', style={'overflow': 'auto', 'max-height': '670px', 'padding': '10px'}),
+            ]),
+            width=4
+        ),
+    ], className='mt-2'),
 ], fluid=True, style={'backgroundColor': '#FAFAFA'})
 
-
-
+# Callbacks...
 
 @app.callback(
     Output('map', 'figure'),
@@ -122,9 +130,9 @@ def update_map(mag_range, tsunami, boundary):
         lat='latitude',
         lon='longitude',
         size='mag',
-        color='tsunami warning',  # Use 'tsunami warning' directly for color assignment
+        color='tsunami warning',
         opacity=0.3,
-        color_discrete_map={True: 'blue', False: 'orange'},  # Map True to blue and False to orange
+        color_discrete_map={True: 'blue', False: 'orange'},
         hover_name='place',
         projection='natural earth')
 
@@ -168,11 +176,8 @@ def update_quake_details(sort_by, sort_order, tsunami):
     quake_details = []
 
     for _, row in sorted_df.iterrows():
-        # Customize text color based on tsunami warning
         text_color = 'blue' if row['tsunami warning'] else 'black'
-        
         description = f"{row['place']}, {row['datetime']}, Magnitude: {row['mag']}, Depth: {row['depth']} km"
-        
         quake_details.append(html.Li(description, style={'color': text_color}))
 
     return quake_details
@@ -180,3 +185,4 @@ def update_quake_details(sort_by, sort_order, tsunami):
 
 if __name__ == '__main__':
     app.run_server(port=8010, debug=True)
+
