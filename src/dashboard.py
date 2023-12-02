@@ -4,7 +4,6 @@ import geopandas as gpd
 import shapely.geometry
 import plotly.graph_objects as go
 import plotly.express as px
-import plotly.graph_objects as go
 import dash
 from dash import dcc
 from dash import html
@@ -57,7 +56,6 @@ app.layout = dbc.Container(
                                                     i: {
                                                         "label": str(i),
                                                         "style": {
-                                                            "transform": "rotate(0deg)",
                                                             "font-size": "12px",
                                                         },
                                                     }
@@ -290,10 +288,15 @@ def update_map(mag_range, tsunami, boundary):
         Input("sort-by", "value"),
         Input("sort-order", "value"),
         Input("tsunami-filter", "value"),
+        Input("mag-slider", "value"),
     ],
 )
-def update_quake_details(sort_by, sort_order, tsunami):
+def update_quake_details(sort_by, sort_order, tsunami, mag_range):
     sorted_df = df.sort_values(sort_by, ascending=(sort_order == "asc"))
+    
+    sorted_df = sorted_df[
+        (sorted_df["mag"] >= mag_range[0]) & (sorted_df["mag"] <= mag_range[1])
+    ]
 
     if tsunami != "all":
         sorted_df = sorted_df[
