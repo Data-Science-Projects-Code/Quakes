@@ -110,7 +110,7 @@ app.layout = dbc.Container(
                                         ],
                                         className="mt-3",
                                     ),
-                                ]
+                                ], style={"background-color": "#ededed"}
                             ),
                         ]
                     ),
