@@ -257,8 +257,8 @@ def update_map(mag_range, tsunami, boundary):
 
         fig.add_trace(go.Scattergeo(lat=lats, lon=lons, mode='lines', line=dict(width=1, color='black'), name='Major Faultlines'))
 
-    fig.update_layout(legend_title_text='Tsunami Warning', legend_tracegroupgap=10)
-
+#    fig.update_layout(legend_title_text='Tsunami Warning', legend_tracegroupgap=10)
+    fig.update_layout(showlegend=False)
     return fig
 
 
