@@ -5,8 +5,7 @@ import shapely.geometry
 import plotly.graph_objects as go
 import plotly.express as px
 import dash
-from dash import dcc
-from dash import html
+from dash import dcc, html
 from dash.dependencies import Input, Output
 import dash_bootstrap_components as dbc
 
@@ -38,7 +37,7 @@ app.layout = dbc.Container(
                             html.H2("World View", className="text-center mb-3"),
                             dcc.Graph(
                                 id="map",
-                                style={"height": "700px"},
+                                style={"height": "500"},
                                 clickData={"points": []},
                             ),
                             dbc.Row(
@@ -176,8 +175,8 @@ app.layout = dbc.Container(
                                 id="quake-details",
                                 style={
                                     "overflow": "auto",
-                                    "max-height": "610px",
-                                    "padding": "30px",
+                                    "max-height": "500px",
+                                    "padding": "20px",
                                     "padding-top": "10px",
                                     "background-color": "white",
                                 },
@@ -185,6 +184,19 @@ app.layout = dbc.Container(
                         ]
                     ),
                     width=4,
+                ),
+            ],
+            className="mt-2",
+        ),
+        dbc.Row(
+            [
+                dbc.Col(
+                    dcc.Graph(id="depth-histogram"),
+                    width=6,
+                ),
+                dbc.Col(
+                    dcc.Graph(id="magnitude-histogram"),
+                    width=6,
                 ),
             ],
             className="mt-2",
@@ -279,6 +291,56 @@ def update_quake_details(sort_by, sort_order, tsunami, mag_range):
         quake_details.append(html.Li(description, style={"color": text_color}))
 
     return quake_details
+
+
+@app.callback(
+    [Output("depth-histogram", "figure"),
+     Output("magnitude-histogram", "figure")],
+    [Input("mag-slider", "value"), Input("tsunami-filter", "value")]
+)
+def update_histograms(mag_range, tsunami):
+    filtered_df = df.copy()
+
+    if tsunami != "all":
+        filtered_df = filtered_df[
+            filtered_df["tsunami warning"] == (1 if tsunami == "yes" else 0)
+        ]
+
+    depth_histogram = px.histogram(
+        filtered_df,
+        x="depth",
+        nbins=20,
+        title="Earthquakes by Depth(km)",
+        labels={"depth": "Depth"},
+        color_discrete_sequence=["green"],
+        opacity=0.7,
+    )
+    depth_histogram.update_layout(
+        xaxis_title="Depth (km)",
+        yaxis_title="Count",
+        bargap=0.05,
+        margin=dict(l=0, r=0, t=30, b=0),
+        title_x=0.5,
+    )
+
+    magnitude_histogram = px.histogram(
+        filtered_df,
+        x="mag",
+        nbins=20,
+        title="Earthquakes by Magnitude",
+        labels={"mag": "Magnitude"},
+        color_discrete_sequence=["blue"],
+        opacity=0.7,
+    )
+    magnitude_histogram.update_layout(
+        xaxis_title="Magnitude",
+        yaxis_title="Count",
+        bargap=0.05,
+        margin=dict(l=0, r=0, t=30, b=0),
+        title_x=0.5,
+    )
+
+    return depth_histogram, magnitude_histogram
 
 
 if __name__ == "__main__":
