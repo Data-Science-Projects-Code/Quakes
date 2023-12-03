@@ -176,8 +176,10 @@ app.layout = dbc.Container(
                                 id="quake-details",
                                 style={
                                     "overflow": "auto",
-                                    "max-height": "670px",
-                                    "padding": "10px",
+                                    "max-height": "610px",
+                                    "padding": "30px",
+                                    "padding-top": "10px",
+                                    "background-color": "white",
                                 },
                             ),
                         ]
@@ -189,7 +191,7 @@ app.layout = dbc.Container(
         ),
     ],
     fluid=True,
-    style={"backgroundColor": "#FAFAFA"},
+    style={"backgroundColor": "#F6F6F6"},
 )
 
 
