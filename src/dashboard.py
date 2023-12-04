@@ -12,7 +12,6 @@ import dash_bootstrap_components as dbc
 df = pd.read_pickle("../data/quakes_last_24.pkl")
 geo_df = gpd.read_file("../data/GeoJSON/PB2002_boundaries.json")
 
-external_stylesheets = ["https://codepen.io/chriddyp/pen/bWLwgP.css"]
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 
 app.layout = dbc.Container(
