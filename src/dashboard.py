@@ -1,13 +1,13 @@
-import pandas as pd
-import numpy as np
-import geopandas as gpd
-import shapely.geometry
-import plotly.graph_objects as go
-import plotly.express as px
 import dash
+import dash_bootstrap_components as dbc
+import geopandas as gpd
+import numpy as np
+import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
+import shapely.geometry
 from dash import dcc, html
 from dash.dependencies import Input, Output
-import dash_bootstrap_components as dbc
 
 df = pd.read_pickle("../data/quakes_last_24.pkl")
 geo_df = gpd.read_file("../data/GeoJSON/PB2002_boundaries.json")
@@ -190,11 +190,11 @@ app.layout = dbc.Container(
         dbc.Row(
             [
                 dbc.Col(
-                    dcc.Graph(id="depth-histogram"),
+                    dcc.Graph(id="depth-histogram", style={"padding": "20px"}),
                     width=6,
                 ),
                 dbc.Col(
-                    dcc.Graph(id="magnitude-histogram"),
+                    dcc.Graph(id="magnitude-histogram", style={"padding": "20px"}),
                     width=6,
                 ),
             ],
