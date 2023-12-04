@@ -232,6 +232,8 @@ def update_map(mag_range, tsunami, boundary):
         hover_name="place",
         projection="natural earth",
     )
+    
+
 
     if boundary == 'show':
         lats = []
@@ -256,8 +258,14 @@ def update_map(mag_range, tsunami, boundary):
 
         fig.add_trace(go.Scattergeo(lat=lats, lon=lons, mode='lines', line=dict(width=1, color='black'), name='Major Faultlines'))
 
-#    fig.update_layout(legend_title_text='Tsunami Warning', legend_tracegroupgap=10)
-    fig.update_layout(showlegend=False)
+    fig.update_layout(
+            showlegend=False,
+            margin={"r":0,"t":10,"l":0,"b":10},
+            geo=dict(
+                center=dict(lat=0, lon=-150),
+                projection_rotation=dict(lon=-150),
+            ),
+        ) 
     return fig
 
 
