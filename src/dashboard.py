@@ -161,8 +161,7 @@ app.layout = dbc.Container(
                                 style={
                                     "overflow": "auto",
                                     "max-height": "500px",
-                                    "padding": "20px",
-                                    "padding-top": "10px",
+                                    "padding": "15px",
                                     "background-color": "white",
                                 },
                             ),
@@ -302,6 +301,9 @@ def update_histograms(mag_range, tsunami_warning):
             filtered_df = filtered_df[filtered_df["tsunami warning"] == 1]
         elif "no" in tsunami_warning_values and "yes" not in tsunami_warning_values:
             filtered_df = filtered_df[filtered_df["tsunami warning"] == 0]
+    
+    bin_width = 0.2
+    num_bins = int((mag_range[1] - mag_range[0]) / bin_width)
 
     depth_histogram = px.histogram(
         filtered_df,
@@ -316,14 +318,15 @@ def update_histograms(mag_range, tsunami_warning):
         xaxis_title="Depth (km)",
         yaxis_title="Count",
         bargap=0.05,
-        margin=dict(l=0, r=0, t=30, b=0),
+        margin=dict(l=10, r=10, t=30, b=10),
         title_x=0.5,
     )
 
     magnitude_histogram = px.histogram(
         filtered_df,
         x="mag",
-        nbins=20,
+        nbins=num_bins,
+        range_x=[mag_range[0], mag_range[1]],
         title="Earthquakes by Magnitude",
         labels={"mag": "Magnitude"},
         color_discrete_sequence=["blue"],
@@ -333,10 +336,9 @@ def update_histograms(mag_range, tsunami_warning):
         xaxis_title="Magnitude",
         yaxis_title="Count",
         bargap=0.05,
-        margin=dict(l=0, r=0, t=30, b=0),
+        margin=dict(l=10, r=10, t=30, b=10),
         title_x=0.5,
     )
-
     return depth_histogram, magnitude_histogram
 
 
