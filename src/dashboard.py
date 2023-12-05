@@ -91,19 +91,12 @@ app.layout = dbc.Container(
                                     ),
                                     dbc.Col(
                                         [
-                                            dbc.RadioItems(
+                                            dbc.Checklist(
                                                 id="boundary-toggle",
                                                 options=[
-                                                    {
-                                                        "label": "Show Major Fault Lines",
-                                                        "value": "show",
-                                                    },
-                                                    {
-                                                        "label": "Hide Major Fault Lines",
-                                                        "value": "hide",
-                                                    },
+                                                    {"label": "Show Major Fault Lines", "value": "show"},
                                                 ],
-                                                value="show",
+                                                value=["show"],
                                                 inline=True,
                                             ),
                                         ],
@@ -232,10 +225,8 @@ def update_map(mag_range, tsunami, boundary):
         hover_name="place",
         projection="natural earth",
     )
-    
 
-
-    if boundary == 'show':
+    if "show" in boundary:
         lats = []
         lons = []
         names = []
@@ -259,13 +250,13 @@ def update_map(mag_range, tsunami, boundary):
         fig.add_trace(go.Scattergeo(lat=lats, lon=lons, mode='lines', line=dict(width=1, color='black'), name='Major Faultlines'))
 
     fig.update_layout(
-            showlegend=False,
-            margin={"r":0,"t":10,"l":0,"b":10},
-            geo=dict(
-                center=dict(lat=0, lon=-150),
-                projection_rotation=dict(lon=-150),
-            ),
-        ) 
+        showlegend=False,
+        margin={"r": 0, "t": 10, "l": 0, "b": 10},
+        geo=dict(
+            center=dict(lat=0, lon=-150),
+            projection_rotation=dict(lon=-150),
+        ),
+    )
     return fig
 
 
@@ -280,7 +271,6 @@ def update_map(mag_range, tsunami, boundary):
 )
 def update_quake_details(sort_by, sort_order, tsunami, mag_range):
     sorted_df = df.sort_values(sort_by, ascending=(sort_order == "asc"))
-    
     sorted_df = sorted_df[
         (sorted_df["mag"] >= mag_range[0]) & (sorted_df["mag"] <= mag_range[1])
     ]
@@ -352,3 +342,4 @@ def update_histograms(mag_range, tsunami):
 
 if __name__ == "__main__":
     app.run_server(port=8010, debug=True)
+
