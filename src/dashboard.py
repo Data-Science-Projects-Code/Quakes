@@ -70,20 +70,13 @@ app.layout = dbc.Container(
                                 [
                                     dbc.Col(
                                         [
-                                            dbc.RadioItems(
-                                                id="tsunami-filter",
+                                            dbc.Checklist(
+                                                id="tsunami-warning",
                                                 options=[
-                                                    {"label": "All", "value": "all"},
-                                                    {
-                                                        "label": "Tsunami Warning Issued",
-                                                        "value": "yes",
-                                                    },
-                                                    {
-                                                        "label": "No Tsunami Warning",
-                                                        "value": "no",
-                                                    },
+                                                    {"label": "Generated Tsunami Warning", "value": "yes"},
+                                                    {"label": "No Tsunami Warning", "value": "no"},
                                                 ],
-                                                value="all",
+                                                value=["yes", "no"],
                                                 inline=True,
                                             ),
                                         ],
@@ -203,16 +196,14 @@ app.layout = dbc.Container(
     Output("map", "figure"),
     [
         Input("mag-slider", "value"),
-        Input("tsunami-filter", "value"),
+        Input("tsunami-warning", "value"),
         Input("boundary-toggle", "value"),
     ],
 )
-def update_map(mag_range, tsunami, boundary):
+def update_map(mag_range, tsunami_warning, boundary):
     filtered_df = df[(df["mag"] >= mag_range[0]) & (df["mag"] <= mag_range[1])]
-    if tsunami != "all":
-        filtered_df = filtered_df[
-            filtered_df["tsunami warning"] == (1 if tsunami == "yes" else 0)
-        ]
+    if tsunami_warning:
+        filtered_df = filtered_df[filtered_df["tsunami warning"].isin(tsunami_warning)]
 
     fig = px.scatter_geo(
         filtered_df,
@@ -259,26 +250,25 @@ def update_map(mag_range, tsunami, boundary):
     )
     return fig
 
-
 @app.callback(
     Output("quake-details", "children"),
     [
         Input("sort-by", "value"),
         Input("sort-order", "value"),
-        Input("tsunami-filter", "value"),
+        Input("tsunami-warning", "value"),
         Input("mag-slider", "value"),
     ],
 )
-def update_quake_details(sort_by, sort_order, tsunami, mag_range):
+def update_quake_details(sort_by, sort_order, tsunami_warning, mag_range):
     sorted_df = df.sort_values(sort_by, ascending=(sort_order == "asc"))
     sorted_df = sorted_df[
         (sorted_df["mag"] >= mag_range[0]) & (sorted_df["mag"] <= mag_range[1])
     ]
 
-    if tsunami != "all":
-        sorted_df = sorted_df[
-            sorted_df["tsunami warning"] == (1 if tsunami == "yes" else 0)
-        ]
+    if "yes" in tsunami_warning and "no" not in tsunami_warning:
+        sorted_df = sorted_df[sorted_df["tsunami warning"] == 1]
+    elif "no" in tsunami_warning and "yes" not in tsunami_warning:
+        sorted_df = sorted_df[sorted_df["tsunami warning"] == 0]
 
     quake_details = []
 
@@ -290,18 +280,17 @@ def update_quake_details(sort_by, sort_order, tsunami, mag_range):
     return quake_details
 
 
+
 @app.callback(
     [Output("depth-histogram", "figure"),
      Output("magnitude-histogram", "figure")],
-    [Input("mag-slider", "value"), Input("tsunami-filter", "value")]
+    [Input("mag-slider", "value"), Input("tsunami-warning", "value")]
 )
-def update_histograms(mag_range, tsunami):
+def update_histograms(mag_range, tsunami_warning):
     filtered_df = df.copy()
 
-    if tsunami != "all":
-        filtered_df = filtered_df[
-            filtered_df["tsunami warning"] == (1 if tsunami == "yes" else 0)
-        ]
+    if tsunami_warning:
+        filtered_df = filtered_df[filtered_df["tsunami warning"].isin(tsunami_warning)]
 
     depth_histogram = px.histogram(
         filtered_df,
