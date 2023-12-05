@@ -202,8 +202,13 @@ app.layout = dbc.Container(
 )
 def update_map(mag_range, tsunami_warning, boundary):
     filtered_df = df[(df["mag"] >= mag_range[0]) & (df["mag"] <= mag_range[1])]
+
     if tsunami_warning:
-        filtered_df = filtered_df[filtered_df["tsunami warning"].isin(tsunami_warning)]
+        tsunami_warning_values = list(tsunami_warning)
+        if "yes" in tsunami_warning_values and "no" not in tsunami_warning_values:
+            filtered_df = filtered_df[filtered_df["tsunami warning"] == 1]
+        elif "no" in tsunami_warning_values and "yes" not in tsunami_warning_values:
+            filtered_df = filtered_df[filtered_df["tsunami warning"] == 0]
 
     fig = px.scatter_geo(
         filtered_df,
@@ -250,6 +255,7 @@ def update_map(mag_range, tsunami_warning, boundary):
     )
     return fig
 
+
 @app.callback(
     Output("quake-details", "children"),
     [
@@ -265,10 +271,12 @@ def update_quake_details(sort_by, sort_order, tsunami_warning, mag_range):
         (sorted_df["mag"] >= mag_range[0]) & (sorted_df["mag"] <= mag_range[1])
     ]
 
-    if "yes" in tsunami_warning and "no" not in tsunami_warning:
-        sorted_df = sorted_df[sorted_df["tsunami warning"] == 1]
-    elif "no" in tsunami_warning and "yes" not in tsunami_warning:
-        sorted_df = sorted_df[sorted_df["tsunami warning"] == 0]
+    if tsunami_warning:
+        tsunami_warning_values = list(tsunami_warning)
+        if "yes" in tsunami_warning_values and "no" not in tsunami_warning_values:
+            sorted_df = sorted_df[sorted_df["tsunami warning"] == 1]
+        elif "no" in tsunami_warning_values and "yes" not in tsunami_warning_values:
+            sorted_df = sorted_df[sorted_df["tsunami warning"] == 0]
 
     quake_details = []
 
@@ -280,7 +288,6 @@ def update_quake_details(sort_by, sort_order, tsunami_warning, mag_range):
     return quake_details
 
 
-
 @app.callback(
     [Output("depth-histogram", "figure"),
      Output("magnitude-histogram", "figure")],
@@ -290,7 +297,11 @@ def update_histograms(mag_range, tsunami_warning):
     filtered_df = df.copy()
 
     if tsunami_warning:
-        filtered_df = filtered_df[filtered_df["tsunami warning"].isin(tsunami_warning)]
+        tsunami_warning_values = list(tsunami_warning)
+        if "yes" in tsunami_warning_values and "no" not in tsunami_warning_values:
+            filtered_df = filtered_df[filtered_df["tsunami warning"] == 1]
+        elif "no" in tsunami_warning_values and "yes" not in tsunami_warning_values:
+            filtered_df = filtered_df[filtered_df["tsunami warning"] == 0]
 
     depth_histogram = px.histogram(
         filtered_df,
@@ -331,4 +342,3 @@ def update_histograms(mag_range, tsunami_warning):
 
 if __name__ == "__main__":
     app.run_server(port=8010, debug=True)
-
