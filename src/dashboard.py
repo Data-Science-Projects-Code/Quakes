@@ -175,11 +175,11 @@ app.layout = dbc.Container(
         dbc.Row(
             [
                 dbc.Col(
-                    dcc.Graph(id="depth-histogram", style={"padding": "20px"}),
+                    dcc.Graph(id="depth-histogram", style={"padding": "10px"}),
                     width=6,
                 ),
                 dbc.Col(
-                    dcc.Graph(id="magnitude-histogram", style={"padding": "20px"}),
+                    dcc.Graph(id="magnitude-histogram", style={"padding": "10px"}),
                     width=6,
                 ),
             ],
@@ -318,7 +318,7 @@ def update_histograms(mag_range, tsunami_warning):
         xaxis_title="Depth (km)",
         yaxis_title="Count",
         bargap=0.05,
-        margin=dict(l=10, r=10, t=30, b=10),
+        margin=dict(l=70, r=30, t=30, b=10),
         title_x=0.5,
     )
 
@@ -336,7 +336,7 @@ def update_histograms(mag_range, tsunami_warning):
         xaxis_title="Magnitude",
         yaxis_title="Count",
         bargap=0.05,
-        margin=dict(l=10, r=10, t=30, b=10),
+        margin=dict(l=70, r=30, t=30, b=10),
         title_x=0.5,
     )
     return depth_histogram, magnitude_histogram
