@@ -66,6 +66,36 @@ app.layout = dbc.Container(
                                     ),
                                 ]
                             ),
+
+                            dbc.Row(
+                                [
+                                    dbc.Col(
+                                        [
+                                            html.Label("Depth Range (km)"),
+                                            dcc.RangeSlider(
+                                                id="depth-slider",
+                                                min=df["depth"].min(),
+                                                max=df["depth"].max(),
+                                                step=1,
+                                                value=[df["depth"].min(), df["depth"].max()],
+                                                marks={
+                                                    i: {
+                                                        "label": str(i),
+                                                        "style": {
+                                                            "font-size": "12px",
+                                                        },
+                                                    }
+                                                    for i in range(int(df["depth"].min()), int(df["depth"].max())+1, 10)
+                                                },
+                                                included=True,
+                                            ),
+                                        ],
+                                        className="mt-3",
+                                    ),
+                                ]
+                            ),
+
+
                             dbc.Row(
                                 [
                                     dbc.Col(
@@ -195,12 +225,15 @@ app.layout = dbc.Container(
     Output("map", "figure"),
     [
         Input("mag-slider", "value"),
+        Input("depth-slider", "value"),
         Input("tsunami-warning", "value"),
         Input("boundary-toggle", "value"),
     ],
 )
-def update_map(mag_range, tsunami_warning, boundary):
-    filtered_df = df[(df["mag"] >= mag_range[0]) & (df["mag"] <= mag_range[1])]
+
+def update_map(mag_range, depth_range, tsunami_warning, boundary):
+    filtered_df = df[(df["mag"] >= mag_range[0]) & (df["mag"] <= mag_range[1]) & (df["depth"] >= depth_range[0]) & (df["depth"] <= depth_range[1])]
+
 
     if tsunami_warning:
         tsunami_warning_values = list(tsunami_warning)
