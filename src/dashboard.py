@@ -43,7 +43,7 @@ app.layout = dbc.Container(
                                 [
                                     dbc.Col(
                                         [
-                                            html.Label("Magnitude Range"),
+                                            html.Label("Magnitude Range", style={"text-align": "center"}),
                                             dcc.RangeSlider(
                                                 id="mag-slider",
                                                 min=2.5,
@@ -71,21 +71,21 @@ app.layout = dbc.Container(
                                 [
                                     dbc.Col(
                                         [
-                                            html.Label("Depth Range (km)"),
+                                            html.Label("Depth Range (km)", style={"text-align": "center"}),
                                             dcc.RangeSlider(
                                                 id="depth-slider",
-                                                min=df["depth"].min(),
-                                                max=df["depth"].max(),
-                                                step=1,
-                                                value=[df["depth"].min(), df["depth"].max()],
+                                                min=np.log10(df["depth"].min()),
+                                                max=np.log10(df["depth"].max()),
+                                                step=0.1,
+                                                value=[np.log10(df["depth"].min()), np.log10(df["depth"].max())],
                                                 marks={
                                                     i: {
-                                                        "label": str(i),
+                                                        "label": f"{10**i:.2f}",
                                                         "style": {
                                                             "font-size": "12px",
                                                         },
                                                     }
-                                                    for i in range(int(df["depth"].min()), int(df["depth"].max())+1, 10)
+                                                    for i in np.arange(np.log10(df["depth"].min()), np.log10(df["depth"].max())+0.1, 0.3)
                                                 },
                                                 included=True,
                                             ),
@@ -219,8 +219,6 @@ app.layout = dbc.Container(
     fluid=True,
     style={"backgroundColor": "#F6F6F6"},
 )
-
-
 @app.callback(
     Output("map", "figure"),
     [
@@ -230,10 +228,10 @@ app.layout = dbc.Container(
         Input("boundary-toggle", "value"),
     ],
 )
-
 def update_map(mag_range, depth_range, tsunami_warning, boundary):
+    # Convert depth range back to linear scale for filtering
+    depth_range = [10**i for i in depth_range]
     filtered_df = df[(df["mag"] >= mag_range[0]) & (df["mag"] <= mag_range[1]) & (df["depth"] >= depth_range[0]) & (df["depth"] <= depth_range[1])]
-
 
     if tsunami_warning:
         tsunami_warning_values = list(tsunami_warning)
@@ -377,3 +375,4 @@ def update_histograms(mag_range, tsunami_warning):
 
 if __name__ == "__main__":
     app.run_server(port=8010, debug=True)
+
