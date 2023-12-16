@@ -34,6 +34,33 @@ app.layout = dbc.Container(
                     dbc.Container(
                         [
                             html.H2("World View", className="text-center mb-3"),
+                            dbc.Row(
+                                [
+                                    dbc.Col(
+                                        [
+                                            dbc.Checklist(
+                                                id="tsunami-warning",
+                                                options=[
+                                                    {"label": "Generated Tsunami Warning", "value": "yes"},
+                                                    {"label": "No Tsunami Warning", "value": "no"},
+                                                ],
+                                                value=["yes", "no"],
+                                                inline=True,
+                                            ),
+                                            dbc.Checklist(
+                                                id="boundary-toggle",
+                                                options=[
+                                                    {"label": "Show Major Fault Lines", "value": "show"},
+                                                ],
+                                                value=["show"],
+                                                inline=True,
+                                            ),
+                                        ],
+                                        className="mt-3",
+                                     ),
+                                ],
+                                style={"border": "1px solid black", "borderRadius": "5px", "padding": "10px"}
+                            ),
                             dcc.Graph(
                                 id="map",
                                 style={"height": "500"},
@@ -66,7 +93,6 @@ app.layout = dbc.Container(
                                     ),
                                 ]
                             ),
-
                             dbc.Row(
                                 [
                                     dbc.Col(
@@ -93,39 +119,6 @@ app.layout = dbc.Container(
                                         className="mt-3",
                                     ),
                                 ]
-                            ),
-
-
-                            dbc.Row(
-                                [
-                                    dbc.Col(
-                                        [
-                                            dbc.Checklist(
-                                                id="tsunami-warning",
-                                                options=[
-                                                    {"label": "Generated Tsunami Warning", "value": "yes"},
-                                                    {"label": "No Tsunami Warning", "value": "no"},
-                                                ],
-                                                value=["yes", "no"],
-                                                inline=True,
-                                            ),
-                                        ],
-                                        className="mt-3",
-                                    ),
-                                    dbc.Col(
-                                        [
-                                            dbc.Checklist(
-                                                id="boundary-toggle",
-                                                options=[
-                                                    {"label": "Show Major Fault Lines", "value": "show"},
-                                                ],
-                                                value=["show"],
-                                                inline=True,
-                                            ),
-                                        ],
-                                        className="mt-3",
-                                    ),
-                                ], style={"background-color": "#ededed"}
                             ),
                         ]
                     ),
@@ -173,7 +166,7 @@ app.layout = dbc.Container(
                                                 inline=True,
                                             ),
                                         ],
-                                        width=6,
+                                        width=8,
                                     ),
                                 ],
                                 style={"border": "1px solid black", "borderRadius": "5px", "padding": "10px"},
@@ -211,6 +204,8 @@ app.layout = dbc.Container(
     fluid=True,
     style={"backgroundColor": "#F6F6F6"},
 )
+
+
 @app.callback(
     Output("map", "figure"),
     [
@@ -305,13 +300,8 @@ def update_quake_details(sort_by, sort_order, tsunami_warning, mag_range):
     for i, (_, row) in enumerate(sorted_df.iterrows()):
         text_color = "blue" if row["tsunami warning"] else "black"
         description = f"M: {row['mag']} @ {row['place']}, {row['datetime']}, Depth: {row['depth']} km"
-        bg_color = "#f4f4f4" if i % 2 == 0 else "#ffffff"  # alternate between two colors
+        bg_color = "#f4f4f4" if i % 2 == 0 else "#ffffff" 
         quake_details.append(html.Li(description, style={"color": text_color, "backgroundColor": bg_color}))
-
-    # for _, row in sorted_df.iterrows():
-    #     text_color = "blue" if row["tsunami warning"] else "black"
-    #     description = f"M: {row['mag']} @ {row['place']}, {row['datetime']}, Depth: {row['depth']} km"
-    #     quake_details.append(html.Li(description, style={"color": text_color}))
 
     return quake_details
 
