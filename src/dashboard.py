@@ -74,7 +74,7 @@ app.layout = dbc.Container(
                                             html.Label("Depth Range (km)", style={"text-align": "center"}),
                                             dcc.RangeSlider(
                                                 id="depth-slider",
-                                                min=np.log10(df["depth"].min()),
+                                                min=np.log10(df["depth"].min())-.1,
                                                 max=np.log10(df["depth"].max())+.1,
                                                 step=0.1,
                                                 value=[np.log10(df["depth"].min()), np.log10(df["depth"].max())],
