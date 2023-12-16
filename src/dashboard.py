@@ -135,7 +135,7 @@ app.layout = dbc.Container(
                     dbc.Container(
                         [
                             html.H2(
-                                "Today's Earthquakes Sorted By",
+                                "Today's Earthquakes",
                                 className="text-center mb-3",
                             ),
                             dbc.Row(
@@ -145,18 +145,9 @@ app.layout = dbc.Container(
                                             dbc.RadioItems(
                                                 id="sort-by",
                                                 options=[
-                                                    {
-                                                        "label": "Magnitude",
-                                                        "value": "mag",
-                                                    },
-                                                    {
-                                                        "label": "Time",
-                                                        "value": "datetime",
-                                                    },
-                                                    {
-                                                        "label": "Depth",
-                                                        "value": "depth",
-                                                    },
+                                                    {"label": "Magnitude", "value": "mag"},
+                                                    {"label": "Time", "value": "datetime"},
+                                                    {"label": "Depth","value": "depth"},
                                                 ],
                                                 value="datetime",
                                                 inline=True,
@@ -184,7 +175,8 @@ app.layout = dbc.Container(
                                         ],
                                         width=6,
                                     ),
-                                ]
+                                ],
+                                style={"border": "1px solid black", "borderRadius": "5px", "padding": "10px"},
                             ),
                             dbc.ListGroup(
                                 id="quake-details",
@@ -195,7 +187,7 @@ app.layout = dbc.Container(
                                     "background-color": "white",
                                 },
                             ),
-                        ]
+                        ],
                     ),
                     width=4,
                 ),
