@@ -3,12 +3,12 @@
 ![earthquakes >2.5 ](images/updated_events.png)
 
 ## TL;DR:
-This project gets USGS data, cleans it, and displays it. The code itself can be run in three different ways, two of which output to Dash; one is a self-contained notebook. Pick whichever one matches your interest/expertise.<br>
+This project gets USGS data, cleans it, and displays it. The code itself can be run in three different ways, two of which output to Dash; one is a self-contained notebook. Pick whichever one matches your interest/expertise but realize that most work is currently being doing on `dashboard.py` and `Quakes_single.py`.<br>
  * Jupyter notebook. `Quake_notes` is the all-in-one solution. Step through code, see some of the thinking involved, see the quakes display with folium map.
  * Single data prep file. `Quakes_single.py` is a terse single pandas file. Output is `quakes_last_24_hours.html` (for now) in the `/images`
 folder and `quakes_last_24.pkl` in the `/data` folder. Use Dashboard.py to display to display.
- * `Quakes_multi.py` is a set of modules which outputs the same as the Quakes_single.py file.
  * `Dashboad.py` displays the quakes with Plotly Dash.
+ * `Quakes_multi.py` is a set of modules which outputs the same as the Quakes_single.py file. It's currently lagging a bit behing.
 
 <br><br>
 
