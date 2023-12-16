@@ -310,10 +310,16 @@ def update_quake_details(sort_by, sort_order, tsunami_warning, mag_range):
 
     quake_details = []
 
-    for _, row in sorted_df.iterrows():
+    for i, (_, row) in enumerate(sorted_df.iterrows()):
         text_color = "blue" if row["tsunami warning"] else "black"
         description = f"M: {row['mag']} @ {row['place']}, {row['datetime']}, Depth: {row['depth']} km"
-        quake_details.append(html.Li(description, style={"color": text_color}))
+        bg_color = "#f4f4f4" if i % 2 == 0 else "#ffffff"  # alternate between two colors
+        quake_details.append(html.Li(description, style={"color": text_color, "backgroundColor": bg_color}))
+
+    # for _, row in sorted_df.iterrows():
+    #     text_color = "blue" if row["tsunami warning"] else "black"
+    #     description = f"M: {row['mag']} @ {row['place']}, {row['datetime']}, Depth: {row['depth']} km"
+    #     quake_details.append(html.Li(description, style={"color": text_color}))
 
     return quake_details
 
