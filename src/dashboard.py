@@ -59,7 +59,7 @@ app.layout = dbc.Container(
                                         className="mt-3",
                                      ),
                                 ],
-                                style={"border": "1px solid black", "borderRadius": "5px", "padding": "10px"}
+                                style={"border": "1px solid black", "borderRadius": "5px", "padding": "0px"}
                             ),
                             dcc.Graph(
                                 id="map",
@@ -202,7 +202,7 @@ app.layout = dbc.Container(
         ),
     ],
     fluid=True,
-    style={"backgroundColor": "#F6F6F6"},
+    style={"padding": "10px", "backgroundColor": "#F6F6F6"},
 )
 
 
