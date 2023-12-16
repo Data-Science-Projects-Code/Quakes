@@ -75,7 +75,7 @@ app.layout = dbc.Container(
                                             dcc.RangeSlider(
                                                 id="depth-slider",
                                                 min=np.log10(df["depth"].min()),
-                                                max=np.log10(df["depth"].max()),
+                                                max=np.log10(df["depth"].max())+.1,
                                                 step=0.1,
                                                 value=[np.log10(df["depth"].min()), np.log10(df["depth"].max())],
                                                 marks={
