@@ -37,9 +37,17 @@ quakes["ids"] = quakes["ids"].str.strip(",")
 quakes["sources"] = quakes["sources"].str.strip(",")
 
 # Fix time
-quakes["time"] = pd.to_datetime(quakes["time"], unit="ms")
-quakes["datetime"] = pd.to_datetime(quakes["time"]).dt.strftime("%Y-%m-%d %H:%M")
-quakes.drop(["time"], axis=1, inplace=True)
+# quakes["time"] = pd.to_datetime(quakes["time"], unit="ms")
+# quakes["datetime"] = pd.to_datetime(quakes["time"]).dt.strftime("%Y-%m-%d %H:%M")
+# quakes.drop(["time"], axis=1, inplace=True)
+
+# fix time
+quakes["time"] = pd.to_datetime(
+    quakes["time"], unit="ms"
+)  # Correctly convert time to datetime
+quakes["datetime"] = pd.to_datetime(quakes["time"])  # Keep as datetime object
+quakes.drop(["time"], axis=1, inplace=True)  # Use True here
+
 
 # Split the coordinates column into longitude and latitude columns.
 quakes["longitude"] = quakes.coordinates.str[0]
@@ -80,10 +88,7 @@ for i, row in quakes.iterrows():
         fill=True,
         fill_color="orange",
         fill_opacity=0.3,
-        popup=[
-            f"Time: {row.datetime},\n Mag: {
-            row.mag},\n Depth: {row.depth} km"
-        ],
+        popup=f"Time: {row.datetime},\n Mag: {row.mag},\n Depth: {row.depth} km",
     ).add_to(m)
 
 # Add GeoJSON layer of major world fault lines
