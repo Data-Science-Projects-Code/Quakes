@@ -9,7 +9,7 @@ import shapely.geometry
 from dash import dcc, html
 from dash.dependencies import Input, Output
 
-df = pd.read_pickle("../data/quakes_last_24.pkl")
+df = pd.read_parquet("../data/quakes_last_24.pkl")
 geo_df = gpd.read_file("../data/GeoJSON/PB2002_boundaries.json")
 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
@@ -41,8 +41,14 @@ app.layout = dbc.Container(
                                             dbc.Checklist(
                                                 id="tsunami-warning",
                                                 options=[
-                                                    {"label": "Generated Tsunami Warning", "value": "yes"},
-                                                    {"label": "No Tsunami Warning", "value": "no"},
+                                                    {
+                                                        "label": "Generated Tsunami Warning",
+                                                        "value": "yes",
+                                                    },
+                                                    {
+                                                        "label": "No Tsunami Warning",
+                                                        "value": "no",
+                                                    },
                                                 ],
                                                 value=["yes", "no"],
                                                 inline=True,
@@ -50,27 +56,37 @@ app.layout = dbc.Container(
                                             dbc.Checklist(
                                                 id="boundary-toggle",
                                                 options=[
-                                                    {"label": "Show Major Fault Lines", "value": "show"},
+                                                    {
+                                                        "label": "Show Major Fault Lines",
+                                                        "value": "show",
+                                                    },
                                                 ],
                                                 value=["show"],
                                                 inline=True,
                                             ),
                                         ],
                                         className="mt-3",
-                                     ),
+                                    ),
                                 ],
-                                style={"border": "1px solid black", "borderRadius": "5px", "padding": "0px"}
+                                style={
+                                    "border": "1px solid black",
+                                    "borderRadius": "5px",
+                                    "padding": "20px",
+                                },
                             ),
                             dcc.Graph(
                                 id="map",
-                                style={"height": "500"},
+                                style={"height": "500", "padding": "-20px"},
                                 clickData={"points": []},
                             ),
                             dbc.Row(
                                 [
                                     dbc.Col(
                                         [
-                                            html.Label("Magnitude Range", style={"text-align": "center"}),
+                                            html.Label(
+                                                "Magnitude Range",
+                                                style={"text-align": "center"},
+                                            ),
                                             dcc.RangeSlider(
                                                 id="mag-slider",
                                                 min=2.5,
@@ -97,13 +113,19 @@ app.layout = dbc.Container(
                                 [
                                     dbc.Col(
                                         [
-                                            html.Label("Depth Range (km)", style={"text-align": "center"}),
+                                            html.Label(
+                                                "Depth Range (km)",
+                                                style={"text-align": "center"},
+                                            ),
                                             dcc.RangeSlider(
                                                 id="depth-slider",
-                                                min=np.log10(df["depth"].min())-.1,
-                                                max=np.log10(df["depth"].max())+.1,
+                                                min=np.log10(df["depth"].min()) - 0.1,
+                                                max=np.log10(df["depth"].max()) + 0.1,
                                                 step=0.1,
-                                                value=[np.log10(df["depth"].min()), np.log10(df["depth"].max())],
+                                                value=[
+                                                    np.log10(df["depth"].min()),
+                                                    np.log10(df["depth"].max()),
+                                                ],
                                                 marks={
                                                     i: {
                                                         "label": f"{10**i:.2f}",
@@ -111,7 +133,12 @@ app.layout = dbc.Container(
                                                             "font-size": "12px",
                                                         },
                                                     }
-                                                    for i in np.arange(np.log10(df["depth"].min()), np.log10(df["depth"].max())+0.1, 0.3)
+                                                    for i in np.arange(
+                                                        np.log10(df["depth"].min()),
+                                                        np.log10(df["depth"].max())
+                                                        + 0.1,
+                                                        0.3,
+                                                    )
                                                 },
                                                 included=True,
                                             ),
@@ -138,9 +165,18 @@ app.layout = dbc.Container(
                                             dbc.RadioItems(
                                                 id="sort-by",
                                                 options=[
-                                                    {"label": "Magnitude", "value": "mag"},
-                                                    {"label": "Time", "value": "datetime"},
-                                                    {"label": "Depth","value": "depth"},
+                                                    {
+                                                        "label": "Magnitude",
+                                                        "value": "mag",
+                                                    },
+                                                    {
+                                                        "label": "Time",
+                                                        "value": "datetime",
+                                                    },
+                                                    {
+                                                        "label": "Depth",
+                                                        "value": "depth",
+                                                    },
                                                 ],
                                                 value="datetime",
                                                 inline=True,
@@ -169,7 +205,11 @@ app.layout = dbc.Container(
                                         width=8,
                                     ),
                                 ],
-                                style={"border": "1px solid black", "borderRadius": "5px", "padding": "10px"},
+                                style={
+                                    "border": "1px solid black",
+                                    "borderRadius": "5px",
+                                    "padding": "10px",
+                                },
                             ),
                             dbc.ListGroup(
                                 id="quake-details",
@@ -218,7 +258,12 @@ app.layout = dbc.Container(
 def update_map(mag_range, depth_range, tsunami_warning, boundary):
     # Convert depth range back to linear scale for filtering
     depth_range = [10**i for i in depth_range]
-    filtered_df = df[(df["mag"] >= mag_range[0]) & (df["mag"] <= mag_range[1]) & (df["depth"] >= depth_range[0]) & (df["depth"] <= depth_range[1])]
+    filtered_df = df[
+        (df["mag"] >= mag_range[0])
+        & (df["mag"] <= mag_range[1])
+        & (df["depth"] >= depth_range[0])
+        & (df["depth"] <= depth_range[1])
+    ]
 
     if tsunami_warning:
         tsunami_warning_values = list(tsunami_warning)
@@ -255,12 +300,20 @@ def update_map(mag_range, depth_range, tsunami_warning, boundary):
                 x, y = linestring.xy
                 lats = np.append(lats, y)
                 lons = np.append(lons, x)
-                names = np.append(names, [name]*len(y))
+                names = np.append(names, [name] * len(y))
                 lats = np.append(lats, None)
                 lons = np.append(lons, None)
                 names = np.append(names, None)
 
-        fig.add_trace(go.Scattergeo(lat=lats, lon=lons, mode='lines', line=dict(width=1, color='black'), name='Major Faultlines'))
+        fig.add_trace(
+            go.Scattergeo(
+                lat=lats,
+                lon=lons,
+                mode="lines",
+                line=dict(width=1, color="black"),
+                name="Major Faultlines",
+            )
+        )
 
     fig.update_layout(
         showlegend=False,
@@ -296,20 +349,25 @@ def update_quake_details(sort_by, sort_order, tsunami_warning, mag_range):
             sorted_df = sorted_df[sorted_df["tsunami warning"] == 0]
 
     quake_details = []
-
-    for i, (_, row) in enumerate(sorted_df.iterrows()):
-        text_color = "blue" if row["tsunami warning"] else "black"
-        description = f"M: {row['mag']} @ {row['place']}, {row['datetime']}, Depth: {row['depth']} km"
-        bg_color = "#f4f4f4" if i % 2 == 0 else "#ffffff" 
-        quake_details.append(html.Li(description, style={"color": text_color, "backgroundColor": bg_color}))
-
-    return quake_details
+    #
+    # for i, (_, row) in enumerate(sorted_df.iterrows()):
+    #     text_color = "blue" if row["tsunami warning"] else "black"
+    #     description = (f"M: {row['mag']} @ {row['place'},{row['datetime']},Depth: {row['depth']} km")
+    #     bg_color="#f4f4f4" if i % 2 == 0 else "#ffffff"
+    #     quake_details.append(
+    #         html.Li(
+    #             description, style={"color": text_color,
+    #                 "backgroundColor": bg_color}
+    #         )
+    #     )
+    #
+    # return quake_details
+    #
 
 
 @app.callback(
-    [Output("depth-histogram", "figure"),
-     Output("magnitude-histogram", "figure")],
-    [Input("mag-slider", "value"), Input("tsunami-warning", "value")]
+    [Output("depth-histogram", "figure"), Output("magnitude-histogram", "figure")],
+    [Input("mag-slider", "value"), Input("tsunami-warning", "value")],
 )
 def update_histograms(mag_range, tsunami_warning):
     filtered_df = df.copy()
@@ -320,7 +378,7 @@ def update_histograms(mag_range, tsunami_warning):
             filtered_df = filtered_df[filtered_df["tsunami warning"] == 1]
         elif "no" in tsunami_warning_values and "yes" not in tsunami_warning_values:
             filtered_df = filtered_df[filtered_df["tsunami warning"] == 0]
-    
+
     bin_width = 0.2
     num_bins = int((mag_range[1] - mag_range[0]) / bin_width)
 
@@ -363,4 +421,3 @@ def update_histograms(mag_range, tsunami_warning):
 
 if __name__ == "__main__":
     app.run_server(port=8010, debug=True)
-
