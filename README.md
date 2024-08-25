@@ -3,12 +3,12 @@
 ![earthquakes >2.5 ](images/updated_events.png)
 
 ## TL;DR:
-This project gets USGS data, cleans it, and displays it. The code itself can be run in three different ways, two of which output to Dash; one is a self-contained notebook. Pick whichever one matches your interest/expertise but realize that most work is currently being doing on `dashboard.py` and `Quakes_single.py`.<br>
- * Jupyter notebook. `Quake_notes` is the all-in-one solution. Step through code, see some of the thinking involved, see the quakes display with folium map.
+This project gets USGS data, cleans it, and displays it. The code itself can be run in three different ways, two of which output to Dash; one is a self-contained notebook. Pick whichever one matches your interest/expertise but realize that most work is currently being done on `dashboard.py` and `Quakes_single.py`.<br>
+ * Jupyter notebook. `Quake_notes` is an all-in-one solution. Step through the code, see some of the thinking involved and see the quakes display with a folium map.
  * Single data prep file. `Quakes_single.py` is a terse single pandas file. Output is `quakes_last_24_hours.html` (for now) in the `/images`
 folder and `quakes_last_24.pkl` in the `/data` folder. Use Dashboard.py to display to display.
  * `Dashboad.py` displays the quakes with Plotly Dash.
- * `Quakes_multi.py` is a set of modules which outputs the same as the Quakes_single.py file. It's currently lagging a bit behing.
+ * `Quakes_multi.py` is a set of modules that outputs the same as the Quakes_single.py file. It's currently lagging a bit behind.
 
 <br><br>
 
@@ -29,19 +29,19 @@ folder and `quakes_last_24.pkl` in the `/data` folder. Use Dashboard.py to displ
 
  
 # Background 
-A few years ago I started a makerspace with a group of really good folks. Along the way we met an artist and instructor, [Christina Weisner](https://www.christinaweisner.com/about), who was in the early stages of doing a project and consulting with with one of our members, Kerry Krauss. Kerry was a professor of electronics technology at the local community college.
+A few years ago I started a makerspace with a group of really good folks. Along the way, we met an artist and instructor, [Christina Weisner](https://www.christinaweisner.com/about), who was in the early stages of doing a project and consulting with one of our members, Kerry Krauss. Kerry was a professor of electronics technology at the local community college.
 
 According to Kerry, the code was a bit of kludge. It got the data from USGS somehow; I'm not sure if was RSS, Atom, or JSON. From there, the data was processed and sent a signal to a bunch of Arduino Uno boards by *sound*. Each Arduino was used to actuate one of the seismometers Christina bought. That might seem nuts but Kerry's rationale was, since they were having to troubleshoot at each location, audio was easier to troubleshoot than whipping out a multimeter every time. You can see Christina & Kerry and learn more about her project [here](https://www.youtube.com/embed/uK_es620K0w).
 
-What I really liked about this project is how it blended art with technology. Even more interesting is one of hydrophones was still functional so Christina (with some help) was able to make the observers part of the installation. Another thing I found interesting was the artist as a sort of conductor rather than as the sole author. Christina had the inspiration and idea but almost all the most fabrication and technical aspects came from others. 
+What I liked about this project was how it blended art with technology. Even more interesting is one of the hydrophones was still functional so Christina (with some help) was able to make the observers part of the installation. Another thing I found interesting was the artist as a sort of conductor rather than as the sole author. Christina had the inspiration and idea but almost all the most fabrication and technical aspects came from others. 
 
 [Top ](#table-of-contents)
 <br><br>
 
 # Project Description
-I want to take this in a somewhat different direction. In part this is because I'd like to take a stab at a tsunami warning system. But part is simply because I don't have any hydrophones or for that matter anywhere to store them.
+I want to take this in a somewhat different direction. In part, this is because I'd like to take a stab at a tsunami warning system. But part is simply because I don't have any hydrophones or for that matter anywhere to store them.
 
-So, the plan (other than stepping into it as a time permits) is do a web app which I may or may not deploy. I'd like it to add in some additional features like tsunami model or meta model. I'm probably going to do some of the analysis in SQL by way of [datasette](https://datasette.io/) and possibly [dogsheep beta](https://dogsheep.github.io/) I don't know either of these but Simon Willison seems like a top notch guy and playing with new tech is what this is all about.
+So, the plan (other than stepping into it as time permits) is to do a web app which I may or may not deploy. I'd like it to add some additional features like the tsunami model or meta-model. I'm probably going to do some of the analysis in SQL by way of [datasette](https://datasette.io/) and possibly [dogsheep beta](https://dogsheep.github.io/) I don't know either of these but Simon Willison seems like a top-notch guy and playing with new tech is what this is all about.
 
 [Top ](#table-of-contents)
 <br><br>
@@ -56,7 +56,7 @@ So, the plan (other than stepping into it as a time permits) is do a web app whi
 
 ## Phase 2 -  Pre-model development
 - [x] Contact Eric Geist at [Tsunami and Earthquake Research](https://www.usgs.gov/centers/pcmsc/science/tsunami-and-earthquake-research?qt-science_center_objects=0#qt-science_center_objects) to see if there have been more tsunami occurrences
-- [x] Get & massage data for tsunami warnings and for actual tsunamis reported
+- [x] Get & massage data for tsunami warnings and actual tsunamis reported
 - [x] Dash app as an interim measure
 - [ ] Contact Lisa Wald of USGS
 - [ ] Get tsunami warning/occurrence data
@@ -75,7 +75,7 @@ So, the plan (other than stepping into it as a time permits) is do a web app whi
 
 
 # Understanding USGS Tsunami Data
-Just to be clear, this is about tsunamis and not earthquakes. If you take some time to delve into the data, you're likely to wonder what do some of the values mean. Is a Tsunami Event Validity of 1 better or worse, more or less valid, or ... what than a Tsunami Event with a validity of 4? For the purposes of completeness, here is a legend for select fields along with commentary:
+Just to be clear, this is about tsunamis and not earthquakes. I have it here for the next phase of the project. If you take some time to delve into the data, you're likely to wonder what some of the values mean. Is a Tsunami Event Validity of 1 better or worse, more or less valid, or ... what than a Tsunami Event with a validity of 4? For completeness, here is a legend for select fields along with commentary:
 
 ### <u>Tsunami Event Validity (Valid values: -1 to 4)</u>
  - -1	erroneous entry
