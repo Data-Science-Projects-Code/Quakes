@@ -96,4 +96,4 @@ folium.GeoJson(
 
 
 m.save("../images/quakes_last_24.html")
-quakes.to_pickle("../data/quakes_last_24.pkl")
+quakes.to_parquet("../data/quakes_last_24.pkl")
