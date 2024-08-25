@@ -41,7 +41,7 @@ quakes["time"] = pd.to_datetime(quakes["time"], unit="ms")
 quakes["datetime"] = pd.to_datetime(quakes["time"]).dt.strftime("%Y-%m-%d %H:%M")
 quakes.drop(["time"], axis=1, inplace=True)
 
-# Split the coordinates column into longitude and latitude columns. 
+# Split the coordinates column into longitude and latitude columns.
 quakes["longitude"] = quakes.coordinates.str[0]
 quakes["latitude"] = quakes.coordinates.str[1]
 quakes["depth"] = quakes.coordinates.str[2]
@@ -65,21 +65,25 @@ m = folium.Map(
 )
 """
 fmtr = "function(num) {return L.Util.formatNum(num, 3);};"
-folium.plugins.MousePosition(separator=' / ', prefix="Lat/Long: ", lat_formatter=fmtr, lng_formatter=fmtr).add_to(m)
+folium.plugins.MousePosition(
+    separator=' / ', prefix="Lat/Long: ", lat_formatter=fmtr, lng_formatter=fmtr).add_to(m)
 """
 
 # Scale circle size to Magnitiude
 for i, row in quakes.iterrows():
     folium.CircleMarker(
         (row.latitude, row.longitude),
-        radius=row.mag ** 1.9,
+        radius=row.mag**1.9,
         color="red",
         weight=0,
         opacity=0.4,
         fill=True,
         fill_color="orange",
         fill_opacity=0.3,
-        popup=[f"Time: {row.datetime},\n Mag: {row.mag},\n Depth: {row.depth} km"],
+        popup=[
+            f"Time: {row.datetime},\n Mag: {
+            row.mag},\n Depth: {row.depth} km"
+        ],
     ).add_to(m)
 
 # Add GeoJSON layer of major world fault lines
@@ -96,4 +100,4 @@ folium.GeoJson(
 
 
 m.save("../images/quakes_last_24.html")
-quakes.to_parquet("../data/quakes_last_24.pkl")
+quakes.to_parquet("../data/quakes_last_24.parquet")
