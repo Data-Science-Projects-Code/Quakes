@@ -71,7 +71,7 @@ boundary_layer = pdk.Layer(
     "GeoJsonLayer",
     boundaries,
     line_width_min_pixels=1,
-    get_line_color=[255, 215, 0, 150],  # RGB for #ffd700
+    get_line_color=[255, 215, 0, 50],  # RGB for #ffd700
     pickable=True,
 )
 
