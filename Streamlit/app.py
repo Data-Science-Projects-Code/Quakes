@@ -43,13 +43,14 @@ def load_data():
 
 quakes, boundaries = load_data()
 
-###########
+##########
 # sidebar
 ###########
 st.sidebar.title("controls")
 mag_slider = st.sidebar.slider("magnitude range", 2.5, 9.9, (2.5, 9.9))
 depth_slider = st.sidebar.slider("depth range (km)", 0, 700, (0, 700))
-tsunami_warning = st.sidebar.checkbox("triggered tsunami warning")
+tsunami_warning = st.sidebar.checkbox("highlight tsunami warnings")
+toggle_boundaries = st.sidebar.checkbox("toggle fault boundies")
 
 # data filtering
 filtered_quakes = quakes[
@@ -73,6 +74,7 @@ boundary_layer = pdk.Layer(
     line_width_min_pixels=1,
     get_line_color=[255, 215, 0, 50],  # RGB for #ffd700
     pickable=True,
+    visible=toggle_boundaries,
 )
 
 quake_layer = pdk.Layer(
@@ -106,7 +108,7 @@ col1, col2 = st.columns(2)
 with col1:
     # scatterplot of depth vs. magnitude
     st.subheader("depth vs magnitude")
-    plt.figure(figsize=(5.5, 6), facecolor=base_color)
+    plt.figure(figsize=(5.65, 6), facecolor=base_color)
     plt.scatter(
         filtered_quakes["depth"], filtered_quakes["mag"], alpha=0.5, c="red"
     )  # single color for scatter plot
@@ -123,8 +125,8 @@ with col2:
     hist_values = np.histogram(
         filtered_quakes["datetime"].dt.hour, bins=24, range=(0, 24)
     )[0]
-    plt.figure(figsize=(5.65, 6), facecolor=base_color)
-    plt.bar(range(24), hist_values, color="#fe4c4b", alpha=0.75)
+    plt.figure(figsize=(5.8, 6), facecolor=base_color)
+    plt.bar(range(24), hist_values, color="#fe4c4b", alpha=0.60)
     plt.title("quake strength by hour")
     plt.xlabel("hour of the day")
     plt.ylabel("count")
