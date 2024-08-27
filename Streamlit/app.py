@@ -56,8 +56,8 @@ toggle_boundaries = st.sidebar.checkbox("toggle fault boundies")
 filtered_quakes = quakes[
     (quakes["mag"].between(*mag_slider)) & (quakes["depth"].between(*depth_slider))
 ]
-if tsunami_warning:
-    filtered_quakes = filtered_quakes[filtered_quakes["tsunami warning"]]
+#if tsunami_warning:
+#    filtered_quakes = filtered_quakes[filtered_quakes["tsunami warning"]]
 
 # title and display info
 st.title("earthquakes > 2.5 in the last 24 hours")
