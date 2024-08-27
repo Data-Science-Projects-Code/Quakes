@@ -1,4 +1,3 @@
-from datetime import datetime
 import numpy as np
 import pandas as pd
 import geopandas as gpd
@@ -25,11 +24,11 @@ def load_data():
             "../data/quakes_last_24.parquet",
             engine="pyarrow",
             columns=[
-                "mag",
-                "place",
                 "datetime",
                 "longitude",
                 "latitude",
+                "place",
+                "mag",
                 "depth",
                 "tsunami warning",
             ],
@@ -43,6 +42,7 @@ def load_data():
 
 quakes, boundaries = load_data()
 
+
 ##########
 # sidebar
 ###########
@@ -50,20 +50,19 @@ st.sidebar.title("controls")
 mag_slider = st.sidebar.slider("magnitude range", 2.5, 9.9, (2.5, 9.9))
 depth_slider = st.sidebar.slider("depth range (km)", 0, 700, (0, 700))
 tsunami_warning = st.sidebar.checkbox("highlight tsunami warnings")
-toggle_boundaries = st.sidebar.checkbox("toggle fault boundies")
+toggle_boundaries = st.sidebar.checkbox("toggle fault boundaries")
 
 # data filtering
 filtered_quakes = quakes[
     (quakes["mag"].between(*mag_slider)) & (quakes["depth"].between(*depth_slider))
 ]
-#if tsunami_warning:
-#    filtered_quakes = filtered_quakes[filtered_quakes["tsunami warning"]]
 
 # title and display info
-st.title("earthquakes > 2.5 in the last 24 hours")
+st.title("Earthquakes > 2.5 in the Last 24 Hours")
 st.write(
-    f"displaying quakes between magnitude {mag_slider[0]} and {mag_slider[1]} at depths between {depth_slider[0]} and {depth_slider[1]} km"
+    f"Displaying quakes between magnitude {mag_slider[0]} and {mag_slider[1]} at depths between {depth_slider[0]} and {depth_slider[1]} km"
 )
+
 
 ###########
 # map visualization
@@ -71,8 +70,8 @@ st.write(
 boundary_layer = pdk.Layer(
     "GeoJsonLayer",
     boundaries,
-    line_width_min_pixels=1,
-    get_line_color=[255, 215, 0, 50],  # RGB for #ffd700
+    lineWidthMinPixels=1,
+    getLineColor=[255, 215, 0, 50],  # RGB for #ffd700
     pickable=True,
     visible=toggle_boundaries,
 )
@@ -80,14 +79,14 @@ boundary_layer = pdk.Layer(
 quake_layer = pdk.Layer(
     "ScatterplotLayer",
     filtered_quakes,
-    get_position=["longitude", "latitude"],
-    get_radius="mag * {}".format(magnitude_scale),
-    get_fill_color=[213, 90, 83],
+    getPosition=["longitude", "latitude"],
+    getRadius="mag * {}".format(magnitude_scale),
+    getFillColor=[213, 90, 83],
     opacity=point_opacity,
     pickable=True,
 )
 
-# pydeck viewport centered on ring of fire
+# Pydeck viewport centered on the ring of fire
 view_state = pdk.ViewState(
     longitude=-170,
     latitude=15,
@@ -95,9 +94,15 @@ view_state = pdk.ViewState(
     pitch=0,
 )
 
-# render the deck
-deck = pdk.Deck(layers=[boundary_layer, quake_layer], initial_view_state=view_state)
-st.pydeck_chart(deck)
+# Render the deck in a full-width container
+with st.container():
+    deck = pdk.Deck(layers=[boundary_layer, quake_layer], initial_view_state=view_state)
+    st.pydeck_chart(deck)
+
+# Display the DataFrame in a full-width container below the map
+with st.container():
+    st.write(quakes.style.set_table_attributes("style='width: 100%;'"))
+
 
 ###########
 # plots
@@ -106,35 +111,34 @@ st.markdown("---")
 col1, col2 = st.columns(2)
 
 with col1:
-    # scatterplot of depth vs. magnitude
-    st.subheader("depth vs magnitude")
+    # Scatterplot of depth vs. magnitude
+    st.subheader("Depth vs Magnitude")
     plt.figure(figsize=(5.65, 6), facecolor=base_color)
-    plt.scatter(
-        filtered_quakes["depth"], filtered_quakes["mag"], alpha=0.5, c="red"
-    )  # single color for scatter plot
-    plt.title("depth vs magnitude")
-    plt.xlabel("depth (km)")
-    plt.ylabel("magnitude")
+    plt.scatter(filtered_quakes["depth"], filtered_quakes["mag"], alpha=0.5, c="red")
+    plt.title("Depth vs Magnitude")
+    plt.xlabel("Depth (km)")
+    plt.ylabel("Magnitude")
     plt.gca().set_facecolor(base_color)
     plt.grid(color=grid_color, linestyle="--", linewidth=0.5)
     st.pyplot(plt)
 
 with col2:
-    # histogram of quake strength by hour
-    st.subheader("quake strength by hour")
+    # Histogram of quake strength by hour
+    st.subheader("Quake Strength by Hour")
     hist_values = np.histogram(
         filtered_quakes["datetime"].dt.hour, bins=24, range=(0, 24)
     )[0]
     plt.figure(figsize=(5.8, 6), facecolor=base_color)
     plt.bar(range(24), hist_values, color="#fe4c4b", alpha=0.60)
-    plt.title("quake strength by hour")
-    plt.xlabel("hour of the day")
-    plt.ylabel("count")
+    plt.title("Quake Strength by Hour")
+    plt.xlabel("Hour of the Day")
+    plt.ylabel("Count")
     plt.grid()
     plt.xticks(range(24))
     plt.gca().set_facecolor(base_color)
     plt.grid(color=grid_color, linestyle="--", linewidth=0.5)
     st.pyplot(plt)
+
 
 ###########
 # todo list
@@ -146,6 +150,9 @@ todo list:
 - [x] tweak charts to have a unified color scheme
 - [x] slider/map interactivity
 - [x] change colors for boundaries
-- [ ] boundaries as a clickable layer
-- [ ] tweak map
+- [x] boundaries as a clickable layer
+- [ ] tweak map -- updating on pan
+- [x] display dataframe
+- [x] make dataframe the same width as map
+- [ ] dataframe/map interaction
 """
