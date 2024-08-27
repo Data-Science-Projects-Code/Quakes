@@ -11,10 +11,9 @@ st.set_page_config(layout="wide")
 # Constants
 base_color = "#2c353c"
 grid_color = "#3e4044"
-point_opacity = 0.8
+point_opacity = 0.4
 magnitude_scale = 70000
-map_zoom = 1.2
-
+initial_map_zoom = 1.2
 
 # Data loading
 @st.cache_data
@@ -39,7 +38,6 @@ def load_data():
         st.error(f"Error loading data: {e}")
         st.stop()
 
-
 quakes, boundaries = load_data()
 
 ##########
@@ -63,9 +61,7 @@ st.write(
 )
 
 # Selection for DataFrame row with 'None Selected' as default
-quake_select = st.sidebar.selectbox(
-    "Select an earthquake:", ["None Selected"] + filtered_quakes.index.tolist()
-)
+quake_select = st.sidebar.selectbox("Select an earthquake:", ["None Selected"] + filtered_quakes.index.tolist())
 
 ###########
 # Map Visualization
@@ -81,27 +77,25 @@ boundary_layer = pdk.Layer(
     visible=toggle_boundaries,
 )
 
-# Determine fill colors based on selection
+# Set the fill color based on selection
 quake_layer_data = filtered_quakes.copy()
-quake_layer_data["color"] = [
-    [0, 255, 0, 70]
-    if idx == quake_select and quake_select != "None Selected"
-    else [213, 90, 83, 85]
+quake_layer_data['color'] = [
+    [0, 255, 0] if idx == quake_select and quake_select != "None Selected" else [213, 90, 83]
     for idx in quake_layer_data.index
 ]
 
-# Create the quake layer with the tooltip
+# Create the quake layer with tooltip
 quake_layer = pdk.Layer(
     "ScatterplotLayer",
     quake_layer_data,
     getPosition=["longitude", "latitude"],
     getRadius="mag * {}".format(magnitude_scale),
-    getFillColor="color",  # Use the color column created based on selection
+    getFillColor="color",
     opacity=point_opacity,
     pickable=True,
     tooltip={
         "html": "<b>Place:</b> {place}<br><b>Magnitude:</b> {mag}<br><b>Depth:</b> {depth} km",
-        "style": {"color": "white", "backgroundColor": "rgba(0, 0, 0, 1)"},
+        "style": {"color": "white", "backgroundColor": "rgba(0, 0, 0, 0.6)"},
     },
 )
 
@@ -109,7 +103,7 @@ quake_layer = pdk.Layer(
 view_state = pdk.ViewState(
     longitude=-170,
     latitude=15,
-    zoom=map_zoom,
+    zoom=initial_map_zoom,
     pitch=0,
 )
 
@@ -132,8 +126,7 @@ with col1:
     # Scatterplot of depth vs. magnitude
     st.subheader("Depth vs Magnitude")
     plt.figure(figsize=(5.65, 6), facecolor=base_color)
-    plt.scatter(
-        filtered_quakes["depth"], filtered_quakes["mag"], alpha=0.5, color="#fe4c4b")
+    plt.scatter(filtered_quakes["depth"], filtered_quakes["mag"], alpha=0.5, c="red")
     plt.title("Depth vs Magnitude")
     plt.xlabel("Depth (km)")
     plt.ylabel("Magnitude")
