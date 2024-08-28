@@ -1,7 +1,5 @@
 import requests
 import pandas as pd
-import folium
-
 
 data = requests.get(
     "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_day.geojson"
