@@ -1,3 +1,6 @@
+<link rel="stylesheet" type="text/css" href="custom.css">
+
+
 #  <p align="center">Quakes</p>
 
 ![earthquakes >2.5 ](images/updated_events.png)
