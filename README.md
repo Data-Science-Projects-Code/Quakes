@@ -1,4 +1,5 @@
-<link rel="stylesheet" type="text/css" href="custom.css">
+<style> h1, h2 {border-bottom: none;} </style>
+
 
 
 #  <p align="center">Quakes</p>
