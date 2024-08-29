@@ -2,6 +2,11 @@
 __pycache__/
 *.py[cod]
 *$py.class
+I
+
+# No need to store logs on githbub
+logs/
+
 
 MacOS
 .DS_Store
