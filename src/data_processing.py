@@ -4,9 +4,16 @@ import logging
 from datetime import datetime
 import os
 
-# Configure logging
-log_dir = "logs"
-os.makedirs(log_dir, exist_ok=True)  # Create logs directory if it doesn't exist
+# Get the top-level directory (parent of src)
+top_level_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+
+# Set up log and data directories at the top level
+log_dir = os.path.join(top_level_dir, "logs")
+data_dir = os.path.join(top_level_dir, "data")
+
+os.makedirs(log_dir, exist_ok=True)
+os.makedirs(data_dir, exist_ok=True)
+
 logging.basicConfig(
     filename=os.path.join(
         log_dir, f'data_processing_{datetime.utcnow().strftime("%Y-%m-%d")}.log'
@@ -17,8 +24,6 @@ logging.basicConfig(
 
 logging.info("Data processing script started.")
 
-
-# Fetch, clean, and save data as parquet; log results
 try:
     data = requests.get(
         "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_day.geojson"
@@ -66,19 +71,17 @@ try:
     logging.info("Data downloaded and cleaned successfully.")
 
     today = datetime.utcnow().strftime("%Y-%m-%d")
-    daily_filename = f"data/quakes_{today}.parquet"
-    os.makedirs("data", exist_ok=True)  # Create the data directory if it doesn't exist
+    daily_filename = os.path.join(data_dir, f"quakes_{today}.parquet")
     quakes.to_parquet(daily_filename)
     logging.info(f"Today's data saved as {daily_filename}.")
 
-    # Step 4: Append today's data to the aggregated Parquet file
-    aggregated_filename = "data/aggregated_data.parquet"
+    aggregated_filename = os.path.join(data_dir, "aggregated_data.parquet")
     try:
         aggregated_data = pd.read_parquet(aggregated_filename)
         aggregated_data = pd.concat([aggregated_data, quakes], ignore_index=True)
         logging.info(f"Appended today's data to {aggregated_filename}.")
     except FileNotFoundError:
-        aggregated_data = quakes  # If no aggregated file exists, start fresh
+        aggregated_data = quakes
         logging.info(f"No aggregated file found. Created new {aggregated_filename}.")
 
     aggregated_data.to_parquet(aggregated_filename)
