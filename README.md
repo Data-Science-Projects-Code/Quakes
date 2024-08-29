@@ -1,4 +1,4 @@
-<link rel="stylesheet" type="text/css" href="custom.css">
+
 
 
 #  <p align="center">Quakes</p>
