@@ -1,4 +1,3 @@
-<style> h1, h2 {border-bottom: none;} </style>
 
 
 
