@@ -4,6 +4,9 @@ import geopandas as gpd
 import matplotlib.pyplot as plt
 import pydeck as pdk
 import streamlit as st
+import os
+from datetime import datetime
+import glob
 
 # Configure the layout
 st.set_page_config(layout="wide")
@@ -15,28 +18,53 @@ point_opacity = 0.4
 magnitude_scale = 70000
 initial_map_zoom = 1.2
 
+
 # Data loading
 @st.cache_data
 def load_data():
     try:
-        quakes = pd.read_parquet(
-            "../data/quakes_last_24.parquet",
-            engine="pyarrow",
-            columns=[
-                "datetime",
-                "longitude",
-                "latitude",
-                "place",
-                "mag",
-                "depth",
-                "tsunami warning",
-            ],
-        )
-        boundaries = gpd.read_file("../data/geojson/pb2002_boundaries.json")
-        return quakes, boundaries
+        # Set the directory where the data files are stored
+        data_dir = "../data/"
+
+        # Get today's date to create the expected filename
+        today = datetime.utcnow().strftime("%y-%m-%d")
+
+        # Check for specific files based on naming convention
+        # Use glob to find files that match the pattern
+        file_pattern = os.path.join(data_dir, f"quakes_{today}.parquet")
+        files = glob.glob(file_pattern)
+
+        # If no file found for today, look for any other matching files
+        if not files:
+            wildcard_pattern = os.path.join(
+                data_dir, "quakes_*.parquet"
+            )  # Matches all files with the prefix
+            files = glob.glob(wildcard_pattern)
+
+        # If any file is found, read the first one
+        if files:
+            quakes = pd.read_parquet(
+                files[0],
+                engine="pyarrow",
+                columns=[
+                    "datetime",
+                    "longitude",
+                    "latitude",
+                    "place",
+                    "mag",
+                    "depth",
+                    "tsunami warning",
+                ],
+            )
+            boundaries = gpd.read_file("../data/geojson/pb2002_boundaries.json")
+            return quakes, boundaries
+        else:
+            st.error("No earthquake data files found.")
+            st.stop()
     except Exception as e:
         st.error(f"Error loading data: {e}")
         st.stop()
+
 
 quakes, boundaries = load_data()
 
@@ -57,11 +85,13 @@ filtered_quakes = quakes[
 # Title and display info
 st.title("Earthquakes > 2.5 in the Last 24 Hours")
 st.write(
-    f"Displaying quakes between magnitude {mag_slider[0]} and {mag_slider[1]} at depths between {depth_slider[0]} and {depth_slider[1]} km"
+    f"Displaying quakes between magnitude {mag_slider[0]} and {mag_slider[1]} at depths between {depth_slider[0]} and {depth_slider[1]} km."
 )
 
-# Selection for DataFrame row with 'None Selected' as default
-quake_select = st.sidebar.selectbox("Select an earthquake:", ["None Selected"] + filtered_quakes.index.tolist())
+# Selection for dataframe row with 'none selected' as default
+quake_select = st.sidebar.selectbox(
+    "Select an Earthquake:", ["none selected"] + filtered_quakes.index.tolist()
+)
 
 ###########
 # Map Visualization
@@ -71,16 +101,18 @@ quake_select = st.sidebar.selectbox("Select an earthquake:", ["None Selected"] +
 boundary_layer = pdk.Layer(
     "GeoJsonLayer",
     boundaries,
-    lineWidthMinPixels=1,
-    getLineColor=[255, 215, 0, 50],  # RGB for #ffd700
+    linewidth_min_pixels=1,
+    get_line_color=[255, 215, 0, 50],  # RGB for #ffd700
     pickable=True,
     visible=toggle_boundaries,
 )
 
 # Set the fill color based on selection
 quake_layer_data = filtered_quakes.copy()
-quake_layer_data['color'] = [
-    [0, 255, 0] if idx == quake_select and quake_select != "None Selected" else [213, 90, 83]
+quake_layer_data["color"] = [
+    [0, 255, 0]
+    if idx == quake_select and quake_select != "none selected"
+    else [213, 90, 83]
     for idx in quake_layer_data.index
 ]
 
@@ -88,9 +120,9 @@ quake_layer_data['color'] = [
 quake_layer = pdk.Layer(
     "ScatterplotLayer",
     quake_layer_data,
-    getPosition=["longitude", "latitude"],
-    getRadius="mag * {}".format(magnitude_scale),
-    getFillColor="color",
+    get_position=["longitude", "latitude"],
+    get_radius="mag * {}".format(magnitude_scale),
+    get_fill_color="color",
     opacity=point_opacity,
     pickable=True,
     tooltip={
@@ -99,7 +131,7 @@ quake_layer = pdk.Layer(
     },
 )
 
-# Pydeck viewport centered on the Ring of Fire
+# Pydeck viewport centered on the ring of fire
 view_state = pdk.ViewState(
     longitude=-170,
     latitude=15,
@@ -112,7 +144,7 @@ with st.container():
     deck = pdk.Deck(layers=[boundary_layer, quake_layer], initial_view_state=view_state)
     st.pydeck_chart(deck)
 
-# Display the DataFrame in a full-width container below the map
+# Display the dataframe in a full-width container below the map
 with st.container():
     st.write(filtered_quakes.style.set_table_attributes("style='width: 100%;'"))
 
@@ -152,10 +184,10 @@ with col2:
     st.pyplot(plt)
 
 ###########
-# Todo List
+# Todo list
 ###########
 """
-todo items:
+To-Do Items:
 - [x] change dot size (scale with magnitude)
 - [x] selectable color for quakes that generate tsunami warnings
 - [x] tweak charts to have a unified color scheme
