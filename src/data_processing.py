@@ -1,61 +1,95 @@
-name: Scheduled Data Processing
+import requests
+import pandas as pd
+import logging
+from datetime import datetime
+import os
 
-on:
-  push:
-    branches:
-      - main
-  schedule:
-    - cron: '0 0 * * *'  # Runs at 00:00 UTC every day
-  workflow_dispatch:     # Manual trigger for testing or on-demand processing
+# Get the top-level directory (parent of src)
+top_level_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
-jobs:
-  run-data-processing:
-    runs-on: ubuntu-latest
+# Set up log and data directories at the top level
+log_dir = os.path.join(top_level_dir, "logs")
+data_dir = os.path.join(top_level_dir, "data")
 
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+os.makedirs(log_dir, exist_ok=True)
+os.makedirs(data_dir, exist_ok=True)
 
-    - name: Set up Python 3.12
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.12'
+logging.basicConfig(
+    filename=os.path.join(
+        log_dir, f'data_processing_{datetime.utcnow().strftime("%Y-%m-%d")}.log'
+    ),
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+)
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+logging.info("Data processing script started.")
 
-    - name: Run data processing script
-      run: |
-        set -e
-        python src/data_processing.py
+try:
+    data = requests.get(
+        "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_day.geojson"
+    )
+    jsondata = data.json()
+    quakes = pd.json_normalize(jsondata["features"])
 
-    - name: Commit and push the processed data
-      if: success()
-      run: |
-        git config --global user.name "GitHub Actions"
-        git config --global user.email "actions@github.com"
-        git add data/
-        git diff --quiet && git diff --staged --quiet || git commit -m "Update processed data on $(date +'%Y-%m-%d %H:%M:%S')"
-        git push
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    quakes.columns = quakes.columns.str.replace("properties.", "", regex=False)
+    quakes.columns = quakes.columns.str.replace("geometry.", "", regex=False)
+    quakes.drop(
+        [
+            "id",
+            "type",
+            "updated",
+            "tz",
+            "mmi",
+            "detail",
+            "felt",
+            "cdi",
+            "felt",
+            "types",
+            "nst",
+            "type",
+            "title",
+        ],
+        axis=1,
+        inplace=True,
+    )
 
-    - name: Send Slack notification on success
-      if: success()
-      uses: 8398a7/action-slack@v3
-      with:
-        status: success
-        text: "Data processing workflow completed successfully!"
-      env:
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+    quakes["ids"] = quakes["ids"].str.strip(",")
+    quakes["sources"] = quakes["sources"].str.strip(",")
 
-    - name: Send Slack notification on failure
-      if: failure()
-      uses: 8398a7/action-slack@v3
-      with:
-        status: failure
-        text: "Data processing workflow failed. Please check the logs."
-      env:
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+    quakes["time"] = pd.to_datetime(quakes["time"], unit="ms")
+    quakes["datetime"] = pd.to_datetime(quakes["time"])
+    quakes.drop(["time"], axis=1, inplace=True)
+
+    quakes["longitude"] = quakes.coordinates.str[0]
+    quakes["latitude"] = quakes.coordinates.str[1]
+    quakes["depth"] = quakes.coordinates.str[2]
+    quakes.drop(["coordinates"], axis=1, inplace=True)
+
+    quakes["tsunami warning"] = quakes["tsunami"].astype("bool")
+    quakes.drop(columns=["tsunami"], inplace=True)
+
+    logging.info("Data downloaded and cleaned successfully.")
+
+    today = datetime.utcnow().strftime("%Y-%m-%d")
+    daily_filename = os.path.join(data_dir, f"quakes_{today}.parquet")
+    quakes.to_parquet(daily_filename)
+    logging.info(f"Today's data saved as {daily_filename}.")
+
+    aggregated_filename = os.path.join(data_dir, "aggregated_data.parquet")
+    try:
+        aggregated_data = pd.read_parquet(aggregated_filename)
+        aggregated_data = pd.concat([aggregated_data, quakes], ignore_index=True)
+        logging.info(f"Appended today's data to {aggregated_filename}.")
+    except FileNotFoundError:
+        aggregated_data = quakes
+        logging.info(f"No aggregated file found. Created new {aggregated_filename}.")
+
+    aggregated_data.to_parquet(aggregated_filename)
+    logging.info(f"Aggregated data saved as {aggregated_filename}.")
+
+except Exception as e:
+    logging.error(f"Error during data processing: {e}")
+    raise
+
+logging.info("Data processing script completed successfully.")
+print("Data downloaded, cleaned, and saved as parquet files.")
