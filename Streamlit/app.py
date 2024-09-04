@@ -18,30 +18,19 @@ point_opacity = 0.4
 magnitude_scale = 70000
 initial_map_zoom = 1.2
 
-
-# Data loading
-@st.cache_data
+# data loading
+@st.cache_data(ttl=600)
 def load_data():
     try:
-        # Set the directory where the data files are stored
         data_dir = "../data/"
-
-        # Get today's date to create the expected filename
         today = datetime.utcnow().strftime("%y-%m-%d")
-
-        # Check for specific files based on naming convention
-        # Use glob to find files that match the pattern
         file_pattern = os.path.join(data_dir, f"quakes_{today}.parquet")
         files = glob.glob(file_pattern)
 
-        # If no file found for today, look for any other matching files
         if not files:
-            wildcard_pattern = os.path.join(
-                data_dir, "quakes_*.parquet"
-            )  # Matches all files with the prefix
+            wildcard_pattern = os.path.join(data_dir, "quakes_*.parquet")
             files = glob.glob(wildcard_pattern)
 
-        # If any file is found, read the first one
         if files:
             quakes = pd.read_parquet(
                 files[0],
@@ -53,20 +42,24 @@ def load_data():
                     "place",
                     "mag",
                     "depth",
-                    "tsunami warning",
+                    "tsunami_warning",  # Update this to match the actual column name
                 ],
             )
             boundaries = gpd.read_file("../data/geojson/pb2002_boundaries.json")
             return quakes, boundaries
         else:
             st.error("No earthquake data files found.")
-            st.stop()
+            return None, None
+
     except Exception as e:
         st.error(f"Error loading data: {e}")
-        st.stop()
+        return None, None
 
 
 quakes, boundaries = load_data()
+if quakes is None or boundaries is None:
+    st.stop()
+
 
 ##########
 # Sidebar
