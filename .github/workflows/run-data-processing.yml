@@ -23,9 +23,9 @@ jobs:
         python -m pip install --upgrade pip
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-    - name: Delete previous day's file
+    - name: Delete previous files with prefix 'quakes_'
       run: |
-        find data/ -name 'quakes_*.parquet' -mtime +1 -exec rm {} \;
+        find data/ -name 'quakes_*.parquet' -exec rm {} \;
 
     - name: Run data processing script
       run: |
