@@ -6,10 +6,26 @@
 ![earthquakes >2.5 ](images/updated_events.png)
 
 ## Project Description
-This project gets USGS data, cleans it, and displays it as either:
+This project gets USGS data, cleans it, and displays it as either a:
 
- * Jupyter notebook. `Quake_notes` is an all-in-one solution and the most instructive. It displays the map with folium because I wanted to recreate as closely as I could the USGS site which is done in Leaflet.JS and which Folium is based. 
- * Streamlit app. This uses `data_processing.py` to fetch the csv, format, and output the data as a parquet file.
+<ol>
+<li>Jupyter notebook. `Quakes_all_in_one.ipnb` is the most instructive, an all-in-one solution, and what generated the image above. It displays the map with Folium because I wanted to, as closely as possible, recreate the USGS site which uses Leaflet.JS, which Folium is based on. This notebook also pulls the data at the time of use in the event you have an earthquake watching emergency.</li></ol>
+
+<br>
+Considering most folks don't and this is a personal project rather than a product for sale, I opted for pulling data once a day. So, at midnight, GMT, a GitHub actions creates an ephemeral runner that runs `data_processing.py` which downloads USGS earthquake data. The data is already clean but needs to be transformed which the script also does. It then saves a daily and aggregated version (for future use). Parquet is used for speed and compactness. That bring us to the two other ways of displaying the data.
+
+<br>
+<ol start="2">
+<li>Streamilit app. `Quakes_app`.py ran hosted on Streamilit Community Cloud </li>
+<li>Jupyter notebook. `Quakes_display.ipynb` differs from the other jupyter notebook in where it gets it data from and it's currenly the only one that displays the aggregated data. 
+
+</li></ol>
+
+<br> 
+
+Or, put graphically:
+
+![earthquakes >2.5 ](images/Quakes_overview_graphic.png)
 
 <br><br>
 
@@ -32,7 +48,7 @@ What I liked about this project was how it blended art with technology. Even mor
 
 <br>
 
-## <center>Status: 1st phase done.<center>
+## <center>Status: Working on remaining details of app.<center>
 <br>
 
 ### 1 - Steps up to simple display
@@ -41,12 +57,13 @@ What I liked about this project was how it blended art with technology. Even mor
  - [x] Displays map of quakes >= 2.5 over last 24 hrs using Folium 
 
 ### 2 -  Deploy app
+ - [x] Export as parquet
+ - [x] GitHub actions to automate update of data.
  - [ ] Deploy as app
 
 ### 3 -  Pre-model development
 - [x] Contact Eric Geist at [Tsunami and Earthquake Research](https://www.usgs.gov/centers/pcmsc/science/tsunami-and-earthquake-research?qt-science_center_objects=0#qt-science_center_objects) to see if there have been more tsunami occurrences
 - [x] Get & massage data for tsunami warnings and actual tsunamis reported
-- [x] Dash app as an interim measure
 - [ ] Contact Lisa Wald of USGS
 - [ ] Get tsunami warning/occurrence data
 
