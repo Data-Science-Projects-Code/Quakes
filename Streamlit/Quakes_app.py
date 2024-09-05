@@ -5,9 +5,7 @@ import matplotlib.pyplot as plt
 import pydeck as pdk
 import streamlit as st
 import requests
-from datetime import datetime
 
-# Configure the layout
 st.set_page_config(layout="wide")
 
 # Constants
@@ -39,19 +37,15 @@ def load_data():
         # Filter for files that start with 'quakes_'
         matching_files = [file for file in files if file["name"].startswith("quakes_")]
 
-        # Check for any matching files
         if not matching_files:
             st.error("No earthquake data files found.")
             return None, None
 
-        # Sort files based on the date in their names, then select the most recent
+        # Sort and select most recent file - in the event there is more than one
         matching_files.sort(key=lambda x: x["name"], reverse=True)
-
-        # Use the most recent file URL
         recent_file_url = matching_files[0]["download_url"]
 
-        # Debug: print the recent file URL
-        st.write("Fetching data from URL:", recent_file_url)
+        # st.write("Fetching data from URL:", recent_file_url) # For debugging
 
         # Load the parquet file from the URL
         quakes = pd.read_parquet(
@@ -70,7 +64,7 @@ def load_data():
 
         # Update the boundaries URL to point to the correct path with proper casing
         boundaries_url = "https://raw.githubusercontent.com/hrokr/quakes/main/data/GeoJSON/PB2002_boundaries.json"
-        st.write("Fetching boundaries from URL:", boundaries_url)
+        # st.write("Fetching boundaries from URL:", boundaries_url) # For debugging
         boundaries = gpd.read_file(boundaries_url)
 
         return quakes, boundaries
@@ -80,7 +74,6 @@ def load_data():
         return None, None
 
 
-# Load data
 quakes, boundaries = load_data()
 if quakes is None or boundaries is None:
     st.stop()
@@ -94,7 +87,6 @@ depth_slider = st.sidebar.slider("Depth range (km)", 0, 700, (0, 700))
 tsunami_warning = st.sidebar.checkbox("Highlight tsunami warnings")
 toggle_boundaries = st.sidebar.checkbox("Toggle Fault Boundaries")
 
-# Data filtering
 filtered_quakes = quakes[
     (quakes["mag"].between(*mag_slider)) & (quakes["depth"].between(*depth_slider))
 ]
@@ -105,7 +97,7 @@ st.write(
     f"Displaying quakes between magnitude {mag_slider[0]} and {mag_slider[1]} at depths between {depth_slider[0]} and {depth_slider[1]} km."
 )
 
-# Selection for DataFrame row with 'none selected' as default
+# Dropdown to select an individual earthquake
 quake_select = st.sidebar.selectbox(
     "Select an earthquake:", ["none selected"] + filtered_quakes.index.tolist()
 )
@@ -113,7 +105,10 @@ quake_select = st.sidebar.selectbox(
 ###########
 # Map Visualization
 ###########
+st.write(f"Boundaries data loaded: {not boundaries.empty}")
+
 # Create layers for the map
+boundary_layer = None
 if not boundaries.empty:
     boundary_layer = pdk.Layer(
         "GeoJsonLayer",
@@ -121,12 +116,12 @@ if not boundaries.empty:
         linewidth_min_pixels=1,
         get_line_color=[255, 215, 0, 50],  # RGB for #FFD700
         pickable=True,
-        visible=toggle_boundaries,
     )
+    st.write("Boundary layer created.")  # Debug message
 else:
-    st.warning("No boundaries data to display.")
+    st.warning("Boundaries data is empty or could not be loaded.")
 
-# Set the fill color based on selection
+# Display individual earthquake (currently selected as green)
 quake_layer_data = filtered_quakes.copy()
 quake_layer_data["color"] = [
     [0, 255, 0]
@@ -134,6 +129,8 @@ quake_layer_data["color"] = [
     else [213, 90, 83]
     for idx in quake_layer_data.index
 ]
+# Debug: Check filtered earthquake data
+st.write(f"Filtered earthquakes: {len(filtered_quakes)} rows")
 
 # Create the quake layer with tooltip
 quake_layer = pdk.Layer(
@@ -157,20 +154,31 @@ view_state = pdk.ViewState(
     zoom=initial_map_zoom,
     pitch=0,
 )
+# Dynamically build the list of layers based on the checkbox state
+layers = [quake_layer]  # Always include the quake layer
 
+if (
+    toggle_boundaries and boundary_layer
+):  # Add boundary layer only if the checkbox is checked
+    layers.append(boundary_layer)
+    st.write("Boundary layer added to layers.")  # Debug message
+    
 # Render the deck in a full-width container
 with st.container():
+    layers = [quake_layer]
+    if boundary_layer:
+        layers.append(boundary_layer)
+        st.write("Boundary layer added to layers.")
+    
     deck = pdk.Deck(
-        layers=[boundary_layer, quake_layer]
-        if boundaries.empty == False and toggle_boundaries
-        else [quake_layer],
+        layers=layers,
         initial_view_state=view_state,
     )
     st.pydeck_chart(deck)
 
 # Display the DataFrame in a full-width container below the map
 with st.container():
-    st.write(filtered_quakes.style.set_table_attributes("style='width: 100%;'"))
+   st.write(filtered_quakes.style.set_table_attributes("style='width: 100%;'"))
 
 ###########
 # Plots
@@ -206,22 +214,3 @@ with col2:
     plt.gca().set_facecolor(base_color)
     plt.grid(color=grid_color, linestyle="--", linewidth=0.5)
     st.pyplot(plt)
-
-###########
-# To-Do List
-###########
-"""
-To-do items:
-- [x] Change dot size (scale with magnitude)
-- [x] Selectable color for quakes that generate tsunami warnings
-- [x] Tweak charts to have a unified color scheme
-- [x] Slider/map interactivity
-- [x] Change colors for boundaries
-- [x] Boundaries as a clickable layer
-- [x] Display DataFrame
-- [x] Make DataFrame the same width as map
-- [x] Integrated tooltip functionality for markers
-- [x] Visually distinguish selected quakes using colors
-- [ ] Tweak map -- updating on pan
-- [ ] DataFrame/map interaction
-"""
