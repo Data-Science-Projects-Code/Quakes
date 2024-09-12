@@ -6,13 +6,13 @@
 ## Project Description
 This project gets USGS data, cleans it, and displays it as either a:
 <ol>
-<li>Jupyter notebook. `Quakes_all_in_one.ipnb` is the most instructive, an all-in-one solution, and what generated the image above. It displays the map with Folium because I wanted to, as closely as possible, recreate the USGS site which uses Leaflet.JS, which Folium is based on. This notebook also pulls the data at the time of use in the event you have an earthquake watching emergency.</li></ol>
+<li>Jupyter notebook. <code>Quakes_all_in_one.ipnb</code> is the most instructive, an all-in-one solution, and what generated the image above. It displays the map with Folium because I wanted to, as closely as possible, recreate the USGS site which uses Leaflet.JS, which Folium is based on. This notebook also pulls the data at the time of use in the event you have an earthquake watching emergency.</li></ol>
 <br>
-Considering most folks don't and this is a personal project rather than a product for sale, I opted for pulling data once a day. So, at midnight, GMT, a GitHub actions creates an ephemeral runner that runs `data_processing.py` which downloads USGS earthquake data. The data is already clean but needs to be transformed which the script also does. It then saves both a daily and aggregated version (for future use). Parquet is used for speed and compactness. That bring us to the two other ways of displaying the data.
+Considering most folks don't and this is a personal project rather than a product for sale, I opted for pulling data once a day. So, at midnight, GMT, a GitHub actions creates an ephemeral runner that runs <code>data_processing.py</code> which downloads USGS earthquake data. The data is already clean but needs to be transformed which the script also does. It then saves both a daily and aggregated version (for future use). Parquet is used for speed and compactness. That bring us to the two other ways of displaying the data.
 <br><br>
 <ol start="2">
-<li>Streamilit app. `Quakes_app.py` ran hosted on Streamilit Community Cloud </li>
-<li>Jupyter notebook. `Quakes_display.ipynb` differs from the other jupyter notebook in where it gets it data from and it's currenly the only one that displays the aggregated data. 
+<li>Streamilit app. <code>Quakes_app.py</code> is what Streamlit Cloud hosts and runs at https://quakes.streamlit.app/() </li>
+<li>Jupyter notebook. <code>Quakes_display.ipynb</code> differs from the other jupyter notebook in where it gets it data from and it's currenly the only one that displays the aggregated data. 
 
 </li></ol>
 
@@ -48,13 +48,12 @@ What I liked about this project was how it blended art with technology. Even mor
 
 ### 1 - Steps up to simple display
  - [x] Pull JSON data from USGS of earthquakes greater than magnitude 2.5 over the last 24 hrs 
- - [x] Mung earthquake data
- - [x] Displays map of quakes >= 2.5 over last 24 hrs using Folium 
+ - [x] Pipeline formatting of data
+ - [x] Display map of quakes >= 2.5 over last 24 hrs using Folium 
 
-### 2 -  Deploy app
- - [x] Export as parquet
+### 2 -  Automate pipeline and Streamlit app
  - [x] GitHub actions to automate update of data.
- - [ ] Deploy as app
+ - [x] [Deploy app](https://quakes.streamlit.app/)
 
 ### 3 -  Pre-model development
 - [x] Contact Eric Geist at [Tsunami and Earthquake Research](https://www.usgs.gov/centers/pcmsc/science/tsunami-and-earthquake-research?qt-science_center_objects=0#qt-science_center_objects) to see if there have been more tsunami occurrences
@@ -65,7 +64,7 @@ What I liked about this project was how it blended art with technology. Even mor
 ### 4 - Model development and display
 - [ ] Develop model
 - [ ] Twilio integration
-- [ ] Find a way to export a photo as .png rather than as `quakes_last_24_hours.html`
+- [ ] Find a way to export a photo as .png rather than as `quakes_last_24_hours.html` to update repo image at top daily.
 <br>
 
 [Top](#table-of-contents)
