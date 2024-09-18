@@ -150,7 +150,8 @@ st.write(
 ###########
 # Map Visualization
 ###########
-# Boundary layer visibility depends on the toggle_boundaries checkbox
+
+# Toggle_boundaries checkbox to display
 boundary_layer = pdk.Layer(
     "GeoJsonLayer",
     boundaries,
@@ -185,6 +186,7 @@ deck = pdk.Deck(
     initial_view_state=view_state,
 )
 st.pydeck_chart(deck)
+
 
 ###########
 # Display the DataFrame in a full-width container below the map
@@ -301,12 +303,3 @@ with col2:
     plt.gca().set_facecolor(base_color)
     plt.grid(color=grid_color, linestyle="--", linewidth=0.5)
     st.pyplot(plt)
-
-
-""" 
-Status: Functional
- - [x] Get maps to show all dots
- - [ ] Get maps to show all gridlines
- - [ ] Get analytics to work correctly
- - [ ] Redeploy
- """
