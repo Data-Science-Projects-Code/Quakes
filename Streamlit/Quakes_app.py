@@ -61,7 +61,22 @@ def load_data():
                 "tsunami_warning",
             ],
         )
+        
+        # Workaround -- allows the dots to display but duplicates the points in the analytics
+        map_df = quakes.copy
 
+        # Duplicate the data + and - 360 degrees longitude
+        quakes_plus = quakes.copy()
+        quakes_plus["longitude"] = quakes_plus["longitude"] + 360
+
+        quakes_minus = quakes.copy()
+        quakes_minus["longitude"] = quakes_minus["longitude"] - 360
+
+        quakes = pd.concat([quakes, quakes_plus, quakes_minus]).drop_duplicates(
+            subset=["longitude", "latitude", "datetime"]
+        )
+        
+        
         # Load fault boundaries data
         boundaries_url = "https://raw.githubusercontent.com/hrokr/quakes/main/data/GeoJSON/PB2002_boundaries.json"
         boundaries = gpd.read_file(boundaries_url)
@@ -277,15 +292,8 @@ with col2:
 
 """ 
 Status: Functional
- - [ ] Update maps dynamically update.
- - [ ] Make dataframe as wide as the map (if possible)
- - [x] Recreate the updated text
- - [x] last data pull
- - [x] number of rows that match depth/magnitude
- - [x] A row with a few or so small text boxes / charts
-   - [x] intensity range
-   - [x] number of earthquakes that have triggered alerts
-   - [ ] Maybe a box and whiskers
-   - [x] Total for the day
-
-"""
+ - [x] Get maps to show all dots
+ - [ ] Get maps to show all gridlines
+ - [ ] Get analytics to work correctly
+ - [ ] Redeploy
+ """
