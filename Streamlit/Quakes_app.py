@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import pydeck as pdk
 import streamlit as st
 import requests
+from shapely.geometry import Polygon, LineString, Point
 
 # Configure the layout
 st.set_page_config(layout="wide")
@@ -31,7 +32,7 @@ def load_data():
                     response.status_code
                 )
             )
-            return None, None
+            return None, None, None
 
         # Parse the JSON response
         files = response.json()
@@ -41,7 +42,7 @@ def load_data():
 
         if not matching_files:
             st.error("No earthquake data files found.")
-            return None, None
+            return None, None, None
 
         # Sort and select the most recent file
         matching_files.sort(key=lambda x: x["name"], reverse=True)
@@ -61,35 +62,51 @@ def load_data():
                 "tsunami_warning",
             ],
         )
-        
-        # Workaround -- allows the dots to display but duplicates the points in the analytics
-        map_df = quakes.copy
 
-        # Duplicate the data + and - 360 degrees longitude
+        # Duplicate the data for map visualization by adding/subtracting 360 degrees longitude
         quakes_plus = quakes.copy()
-        quakes_plus["longitude"] = quakes_plus["longitude"] + 360
+        quakes_plus["longitude"] += 360
 
         quakes_minus = quakes.copy()
-        quakes_minus["longitude"] = quakes_minus["longitude"] - 360
+        quakes_minus["longitude"] -= 360
 
-        quakes = pd.concat([quakes, quakes_plus, quakes_minus]).drop_duplicates(
+        # Quakes for map visualization (including +/- 360 longitude shifts)
+        quakes_map = pd.concat([quakes, quakes_plus, quakes_minus]).drop_duplicates(
             subset=["longitude", "latitude", "datetime"]
         )
-        
-        
+
+        # Use only the original quakes for analytics
+        quakes_analytics = quakes
+
         # Load fault boundaries data
         boundaries_url = "https://raw.githubusercontent.com/hrokr/quakes/main/data/GeoJSON/PB2002_boundaries.json"
         boundaries = gpd.read_file(boundaries_url)
 
-        return quakes, boundaries
+        # Function to shift boundaries by a longitude offset
+        def shift_boundaries(boundaries, lon_offset):
+            boundaries_shifted = boundaries.copy()
+            boundaries_shifted["geometry"] = boundaries_shifted["geometry"].translate(
+                xoff=lon_offset
+            )
+            return boundaries_shifted
+
+        # Shift boundaries by +360 and -360 degrees
+        boundaries_plus = shift_boundaries(boundaries, 360)
+        boundaries_minus = shift_boundaries(boundaries, -360)
+
+        # Combine original and shifted boundaries
+        boundaries_all = pd.concat([boundaries, boundaries_plus, boundaries_minus])
+
+        return quakes_map, quakes_analytics, boundaries_all
 
     except Exception as e:
         st.error(f"Error loading data: {e}")
-        return None, None
+        return None, None, None
 
 
-quakes, boundaries = load_data()
-if quakes is None or boundaries is None:
+# Load the data
+quakes_map, quakes_analytics, boundaries = load_data()
+if quakes_map is None or boundaries is None:
     st.stop()
 
 ##########
@@ -102,13 +119,14 @@ mag_slider = st.sidebar.slider("Magnitude range", 2.5, 9.9, (2.5, 9.9))
 depth_slider = st.sidebar.slider("Depth range (km)", 0, 700, (0, 700))
 
 # Filter data based on sliders (before checkbox filtering)
-pre_checkbox_filtered_quakes = quakes[
-    (quakes["mag"].between(*mag_slider)) & (quakes["depth"].between(*depth_slider))
+pre_checkbox_filtered_quakes = quakes_analytics[
+    (quakes_analytics["mag"].between(*mag_slider))
+    & (quakes_analytics["depth"].between(*depth_slider))
 ]
 
 # Display filtered and total rows in the sidebar
 st.sidebar.text(
-    f"Map & chart will display {len(pre_checkbox_filtered_quakes)} of {len(quakes)} rows"
+    f"Map & chart will display {len(pre_checkbox_filtered_quakes)} of {len(quakes_analytics)} rows"
 )
 
 # Checkbox options
@@ -120,9 +138,8 @@ filtered_quakes = pre_checkbox_filtered_quakes
 if tsunami_warning:
     filtered_quakes = filtered_quakes[filtered_quakes["tsunami_warning"]]
 
-
 # Title and display info - Update title to show date from parquet data
-last_datetime = quakes["datetime"].max().strftime("%d %B %Y")
+last_datetime = quakes_analytics["datetime"].max().strftime("%d %B %Y")
 st.title(f"Earthquakes > 2.5 as of 23:59 UTC on {last_datetime}")
 
 st.write(
@@ -143,10 +160,10 @@ boundary_layer = pdk.Layer(
     visible=toggle_boundaries,  # Visibility controlled by the checkbox
 )
 
-# Quake layer with filtered data
+# Quake layer with filtered data for map visualization
 quake_layer = pdk.Layer(
     "ScatterplotLayer",
-    filtered_quakes,
+    quakes_map,  # Use the quakes_map for map display (including ±360 longitude quakes)
     get_position=["longitude", "latitude"],
     get_radius="mag * {}".format(magnitude_scale),
     get_fill_color=[213, 90, 83],  # Single color for all quakes
@@ -247,10 +264,6 @@ with col3:
         """,
         unsafe_allow_html=True,
     )
-
-total_quakes = len(filtered_quakes)
-intensity_range = f"{filtered_quakes['mag'].min()} - {filtered_quakes['mag'].max()}"
-tsunami_alerts = filtered_quakes["tsunami_warning"].sum()
 
 ###########
 # Plots
