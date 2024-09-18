@@ -55,28 +55,76 @@ def load_data():
                 "datetime",
                 "longitude",
                 "latitude",
-                "place",
+                "place", 
                 "mag",
                 "depth",
                 "tsunami_warning",
             ],
         )
 
+         
+        # Workaround -- just allows the dots to display but duplicates the points in the analytics
+        map_df = quakes.copy
+
         # Duplicate the data + and - 360 degrees longitude
         quakes_plus = quakes.copy()
         quakes_plus["longitude"] = quakes_plus["longitude"] + 360
-        quakes = pd.concat([quakes, quakes_plus])
 
         quakes_minus = quakes.copy()
         quakes_minus["longitude"] = quakes_minus["longitude"] - 360
-        quakes = pd.concat([quakes, quakes_minus])
 
-
+        quakes = pd.concat([quakes, quakes_plus, quakes_minus]).drop_duplicates(
+            subset=["longitude", "latitude", "datetime"]
+        )
+        
         # Load fault boundaries data
         boundaries_url = "https://raw.githubusercontent.com/hrokr/quakes/main/data/GeoJSON/PB2002_boundaries.json"
         boundaries = gpd.read_file(boundaries_url)
 
-        return quakes, boundaries
+        # Create duplicates for +360 and -360 degrees
+        boundaries_plus = boundaries.copy()
+        boundaries_minus = boundaries.copy()
+
+        def shift_geometry(geom, lon_offset):
+            # Check if the geometry is valid
+            if geom.is_empty:
+                return geom
+            # Shift the geometry's coordinates
+            shifted_coords = []
+            if geom.geom_type in ["Polygon", "MultiPolygon"]:
+                for coords in geom.exterior.coords:  # Handle Polygon
+                    shifted_coords.append((coords[0] + lon_offset, coords[1]))
+                return Polygon(shifted_coords)
+            
+
+            elif geom.geom_type in ["LineString", "MultiLineString"]:
+                for coords in geom.coords:
+                    shifted_coords.append((coords[0] + lon_offset, coords[1]))
+                return LineString(shifted_coords)
+
+            elif geom.geom_type == "Point":
+                return Point(geom.x + lon_offset, geom.y)
+
+            return geom  # Return the original if no match
+
+
+        # Shift the boundaries by ±360 degrees for geometries
+        def shift_boundaries(boundaries, lon_offset):
+            boundaries_shifted = boundaries.copy()
+            boundaries_shifted['geometry'] = boundaries_shifted['geometry'].translate(xoff=lon_offset)
+            return boundaries_shifted
+
+        # Shift by +360 and -360 degrees
+        boundaries_plus = shift_boundaries(boundaries, 360)
+        boundaries_minus = shift_boundaries(boundaries, -360)
+
+        # Concatenate the original boundaries with the shifted versions
+        boundaries_all = pd.concat([boundaries, boundaries_plus, boundaries_minus])
+
+
+
+
+        return quakes, boundaries_all
 
     except Exception as e:
         st.error(f"Error loading data: {e}")
@@ -284,18 +332,11 @@ with col2:
     plt.grid(color=grid_color, linestyle="--", linewidth=0.5)
     st.pyplot(plt)
 
+"""
+Status: Mostly Functional
 
-""" 
-Status: Functional
- - [ ] Update maps dynamically update.
- - [ ] Make dataframe as wide as the map (if possible)
- - [x] Recreate the updated text
- - [x] last data pull
- - [x] number of rows that match depth/magnitude
- - [x] A row with a few or so small text boxes / charts
-   - [x] intensity range
-   - [x] number of earthquakes that have triggered alerts
-   - [ ] Maybe a box and whiskers
-   - [x] Total for the day
-
+ - [x] Get maps to show all dots
+ - [ ] Get maps to show all gridlines
+ - [ ] Get analytics to work correctly
+ - [ ] Redeploy
 """
