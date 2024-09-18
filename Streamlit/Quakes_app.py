@@ -20,7 +20,7 @@ map_zoom = 1.2
 github_repo_url = "https://api.github.com/repos/hrokr/quakes/contents/data"
 
 
-# Data loading with debugging statements
+# Data loading
 @st.cache_data(ttl=600)
 def load_data():
     try:
@@ -138,7 +138,7 @@ filtered_quakes = pre_checkbox_filtered_quakes
 if tsunami_warning:
     filtered_quakes = filtered_quakes[filtered_quakes["tsunami_warning"]]
 
-# Title and display info - Update title to show date from parquet data
+# Title and display info
 last_datetime = quakes_analytics["datetime"].max().strftime("%d %B %Y")
 st.title(f"Earthquakes > 2.5 as of 23:59 UTC on {last_datetime}")
 
@@ -186,17 +186,17 @@ deck = pdk.Deck(
 )
 st.pydeck_chart(deck)
 
+
 ###########
 # Display the DataFrame in a full-width container below the map
 ###########
 with st.container():
     st.write(filtered_quakes.style.set_table_attributes("style='width: 100%;'"))
 
+
 ###########
 # Additional Information (small boxes/charts)
 ###########
-
-# Additional Information (small boxes/charts) with styling
 st.markdown("---")
 total_quakes = len(filtered_quakes)
 intensity_range = f"{filtered_quakes['mag'].min()} - {filtered_quakes['mag'].max()}"
@@ -301,12 +301,3 @@ with col2:
     plt.gca().set_facecolor(base_color)
     plt.grid(color=grid_color, linestyle="--", linewidth=0.5)
     st.pyplot(plt)
-
-
-""" 
-Status: Functional
- - [x] Get maps to show all dots
- - [ ] Get maps to show all gridlines
- - [ ] Get analytics to work correctly
- - [ ] Redeploy
- """
