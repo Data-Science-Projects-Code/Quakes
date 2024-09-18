@@ -35,9 +35,13 @@ def load_data():
 
         # Parse the JSON response
         files = response.json()
+        st.write("Files fetched from GitHub:", files)  # Debugging statement
 
         # Filter for files that start with 'quakes_'
         matching_files = [file for file in files if file["name"].startswith("quakes_")]
+        st.write(
+            "Matching earthquake data files:", matching_files
+        )  # Debugging statement
 
         if not matching_files:
             st.error("No earthquake data files found.")
@@ -46,6 +50,7 @@ def load_data():
         # Sort and select the most recent file
         matching_files.sort(key=lambda x: x["name"], reverse=True)
         recent_file_url = matching_files[0]["download_url"]
+        st.write("Fetching data from URL:", recent_file_url)  # Debugging statement
 
         # Load the parquet file from the URL
         quakes = pd.read_parquet(
@@ -61,29 +66,13 @@ def load_data():
                 "tsunami_warning",
             ],
         )
-        
-        # Workaround -- allows the dots to display but duplicates the points in the analytics
-        map_df = quakes.copy
+        st.write("Earthquake data loaded:", quakes.head())  # Debugging statement
 
-        # Duplicate the data + and - 360 degrees longitude
-        quakes_plus = quakes.copy()
-        quakes_plus["longitude"] = quakes_plus["longitude"] + 360
-
-        quakes_minus = quakes.copy()
-        quakes_minus["longitude"] = quakes_minus["longitude"] - 360
-
-        quakes = pd.concat([quakes, quakes_plus, quakes_minus]).drop_duplicates(
-            subset=["longitude", "latitude", "datetime"]
-        )
-        
-        
-        # Load fault boundaries data
+        # Update the boundaries URL to point to the correct path with proper casing
         boundaries_url = "https://raw.githubusercontent.com/hrokr/quakes/main/data/GeoJSON/PB2002_boundaries.json"
-<<<<<<< Updated upstream
-=======
-        st.write("Fetching boundaries from URL:", boundaries_url)
->>>>>>> Stashed changes
+        st.write("Fetching boundaries from URL:", boundaries_url)  # Debugging statement
         boundaries = gpd.read_file(boundaries_url)
+        st.write("Boundaries data loaded: True")  # Debugging statement
 
         return quakes, boundaries
 
@@ -100,35 +89,22 @@ if quakes is None or boundaries is None:
 # Sidebar
 ###########
 st.sidebar.title("Controls")
-
-# Sliders for magnitude and depth range
 mag_slider = st.sidebar.slider("Magnitude range", 2.5, 9.9, (2.5, 9.9))
 depth_slider = st.sidebar.slider("Depth range (km)", 0, 700, (0, 700))
-
-# Filter data based on sliders (before checkbox filtering)
-pre_checkbox_filtered_quakes = quakes[
-    (quakes["mag"].between(*mag_slider)) & (quakes["depth"].between(*depth_slider))
-]
-
-# Display filtered and total rows in the sidebar
-st.sidebar.text(
-    f"Map & chart will display {len(pre_checkbox_filtered_quakes)} of {len(quakes)} rows"
-)
-
-# Checkbox options
 tsunami_warning = st.sidebar.checkbox("Highlight tsunami warnings")
 toggle_boundaries = st.sidebar.checkbox("Toggle Fault Boundaries")
 
-# Further filtering based on checkboxes
-filtered_quakes = pre_checkbox_filtered_quakes
+# Data filtering
+filtered_quakes = quakes[
+    (quakes["mag"].between(*mag_slider)) & (quakes["depth"].between(*depth_slider))
+]
 if tsunami_warning:
     filtered_quakes = filtered_quakes[filtered_quakes["tsunami_warning"]]
 
+st.write(f"Filtered earthquakes: {len(filtered_quakes)} rows")  # Debugging statement
 
-# Title and display info - Update title to show date from parquet data
-last_datetime = quakes["datetime"].max().strftime("%d %B %Y")
-st.title(f"Earthquakes > 2.5 as of 23:59 UTC on {last_datetime}")
-
+# Title and display info
+st.title("Earthquakes > 2.5 in the Last 24 Hours")
 st.write(
     f"Displaying quakes between magnitude {mag_slider[0]} and {mag_slider[1]} "
     f"at depths between {depth_slider[0]} and {depth_slider[1]} km."
@@ -137,41 +113,18 @@ st.write(
 ###########
 # Map Visualization
 ###########
-<<<<<<< Updated upstream
 # Boundary layer visibility depends on the toggle_boundaries checkbox
 boundary_layer = pdk.Layer(
     "GeoJsonLayer",
     boundaries,
     line_width_min_pixels=1,
-    get_line_color=[255, 215, 0, 50],  # RGB for #ffd700 (gold)
+    get_line_color=[255, 215, 0, 50],  # RGB for #ffd700
     pickable=True,
     visible=toggle_boundaries,  # Visibility controlled by the checkbox
 )
+st.write("Boundary layer created.")  # Debugging statement
 
 # Quake layer with filtered data
-=======
-# Create layers for the map
-if not boundaries.empty:
-    boundary_layer = pdk.Layer(
-        "GeoJsonLayer",
-        boundaries,
-        linewidth_min_pixels=1,
-        get_line_color=[255, 215, 0, 50],  # RGB for #FFD700
-        pickable=True,
-        visible=toggle_boundaries,
-    )
-
-# Display individual earthquake (currently selected as green)
-quake_layer_data = filtered_quakes.copy()
-quake_layer_data["color"] = [
-    [0, 255, 0]
-    if idx == quake_select and quake_select != "none selected"
-    else [213, 90, 83]
-    for idx in quake_layer_data.index
-]
-
-# Create the quake layer with tooltip
->>>>>>> Stashed changes
 quake_layer = pdk.Layer(
     "ScatterplotLayer",
     filtered_quakes,
@@ -190,109 +143,13 @@ view_state = pdk.ViewState(
     pitch=0,
 )
 
-<<<<<<< Updated upstream
 # Render the deck
 deck = pdk.Deck(
     layers=[boundary_layer, quake_layer],
     initial_view_state=view_state,
 )
 st.pydeck_chart(deck)
-=======
-# Render the deck in a full-width container
-with st.container():
-    layers = [quake_layer]
-    if boundary_layer:
-        layers.append(b) 
-    
-    deck = pdk.Deck(
-        layers=layers,
-        initial_view_state=view_state,
-    )
-    st.pydeck_chart(deck)
->>>>>>> Stashed changes
-
-###########
-# Display the DataFrame in a full-width container below the map
-###########
-with st.container():
-    st.write(filtered_quakes.style.set_table_attributes("style='width: 100%;'"))
-
-###########
-# Additional Information (small boxes/charts)
-###########
-
-# Additional Information (small boxes/charts) with styling
-st.markdown("---")
-total_quakes = len(filtered_quakes)
-intensity_range = f"{filtered_quakes['mag'].min()} - {filtered_quakes['mag'].max()}"
-tsunami_alerts = filtered_quakes["tsunami_warning"].sum()
-
-# Custom CSS styling
-st.markdown(
-    """
-    <style>
-    .metric-box {
-        background-color: #2c353c;
-        padding: 10px;
-        border-radius: 8px;
-        text-align: center;
-        color: white;
-        margin-bottom: 10px;
-    }
-    .metric-label {
-        font-size: 30px;
-        font-weight: normal;
-        color: rgb(150, 76, 75);
-    }
-    .metric-value {
-        font-size: 30px;
-        font-weight: normal;
-        color: rgb(250, 250, 250);
-    }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
-
-# Display these metrics in a row with custom styling
-col1, col2, col3 = st.columns(3)
-
-with col1:
-    st.markdown(
-        f"""
-        <div class="metric-box">
-            <div class="metric-label">Total Earthquakes</div>
-            <div class="metric-value">{total_quakes}</div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-with col2:
-    st.markdown(
-        f"""
-        <div class="metric-box">
-            <div class="metric-label">Intensity Range</div>
-            <div class="metric-value">{intensity_range}</div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-with col3:
-    st.markdown(
-        f"""
-        <div class="metric-box">
-            <div class="metric-label">Tsunami Alerts</div>
-            <div class="metric-value">{tsunami_alerts}</div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-total_quakes = len(filtered_quakes)
-intensity_range = f"{filtered_quakes['mag'].min()} - {filtered_quakes['mag'].max()}"
-tsunami_alerts = filtered_quakes["tsunami_warning"].sum()
+st.write("Boundary layer added to layers.")  # Debugging statement
 
 ###########
 # Plots
@@ -331,11 +188,16 @@ with col2:
     plt.grid(color=grid_color, linestyle="--", linewidth=0.5)
     st.pyplot(plt)
 
-
-""" 
-Status: Functional
- - [x] Get maps to show all dots
- - [ ] Get maps to show all gridlines
- - [ ] Get analytics to work correctly
- - [ ] Redeploy
- """
+###########
+# Todo List
+###########
+"""
+Todo List:
+- [x] Change dot size (scale with magnitude)
+- [x] Selectable color for quakes that generate tsunami warnings
+- [x] Tweak charts to have a unified color scheme
+- [x] Slider/map interactivity
+- [x] Change colors for boundaries
+- [ ] Boundaries as a clickable layer
+- [ ] Tweak map
+"""
