@@ -11,10 +11,9 @@ from metrics import display_metric
 st.set_page_config(layout="wide")
 
 # Load CSS
-with open("styles.css", "r") as file:
-    styles = file.read()
-
-    st.markdown(f"<style>{css_file}</style>", unsafe_allow_html=True)
+with open("styles.css", "r") as css_file:
+    
+    st.markdown(f"<style>{css_file.read()}</style>", unsafe_allow_html=True)
 
 # Constants
 point_opacity = 0.35
