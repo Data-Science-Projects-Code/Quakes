@@ -8,6 +8,10 @@ import streamlit as st
 import requests
 from shapely.geometry import Polygon, LineString, Point
 
+# Custom CSS for metrics boxes
+with open("styles.css") as css_file:
+    st.markdown(f"<style>{css_file.read()}</style>", unsafe_allow_html=True)
+
 # Configure the layout
 st.set_page_config(layout="wide")
 
@@ -202,32 +206,7 @@ total_quakes = len(filtered_quakes)
 intensity_range = f"{filtered_quakes['mag'].min()} - {filtered_quakes['mag'].max()}"
 tsunami_alerts = filtered_quakes["tsunami_warning"].sum()
 
-# Custom CSS styling
-st.markdown(
-    """
-    <style>
-    .metric-box {
-        background-color: #2c353c;
-        padding: 10px;
-        border-radius: 8px;
-        text-align: center;
-        color: white;
-        margin-bottom: 10px;
-    }
-    .metric-label {
-        font-size: 30px;
-        font-weight: normal;
-        color: rgb(150, 76, 75);
-    }
-    .metric-value {
-        font-size: 30px;
-        font-weight: normal;
-        color: rgb(250, 250, 250);
-    }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
+
 
 # Display these metrics in a row with custom styling
 col1, col2, col3 = st.columns(3)
