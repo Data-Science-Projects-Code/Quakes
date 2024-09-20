@@ -1,4 +1,3 @@
-from datetime import datetime
 import numpy as np
 import pandas as pd
 import geopandas as gpd
@@ -6,8 +5,7 @@ import matplotlib.pyplot as plt
 import pydeck as pdk
 import streamlit as st
 import requests
-from shapely.geometry import Polygon, LineString, Point
-from metrics import display_metric  # Refactored metric display code
+from metrics import display_metric 
 
 # Configure the layout
 st.set_page_config(layout="wide")
@@ -53,14 +51,14 @@ def load_data():
             ],
         )
 
+        # Fix to make quake locations and fault seamless by creating offset copies 
         quakes_plus = quakes.copy()
         quakes_plus["longitude"] += 360
         quakes_minus = quakes.copy()
         quakes_minus["longitude"] -= 360
 
         quakes_map = pd.concat([quakes, quakes_plus, quakes_minus]).drop_duplicates(
-            subset=["longitude", "latitude", "datetime"]
-        )
+            subset=["longitude", "latitude", "datetime"])
         quakes_analytics = quakes
 
         boundaries_url = "https://raw.githubusercontent.com/hrokr/quakes/main/data/GeoJSON/PB2002_boundaries.json"
@@ -69,15 +67,12 @@ def load_data():
         def shift_boundaries(boundaries, lon_offset):
             boundaries_shifted = boundaries.copy()
             boundaries_shifted["geometry"] = boundaries_shifted["geometry"].translate(
-                xoff=lon_offset
-            )
+                xoff=lon_offset)
             return boundaries_shifted
 
         boundaries_plus = shift_boundaries(boundaries, 360)
         boundaries_minus = shift_boundaries(boundaries, -360)
-
         boundaries_all = pd.concat([boundaries, boundaries_plus, boundaries_minus])
-
         return quakes_map, quakes_analytics, boundaries_all
 
     except Exception as e:
@@ -134,10 +129,10 @@ boundary_layer = pdk.Layer(
 
 quake_layer = pdk.Layer(
     "ScatterplotLayer",
-    filtered_quakes,  # Filtered quakes
+    filtered_quakes,  
     get_position=["longitude", "latitude"],
     get_radius="mag * {}".format(magnitude_scale),
-    get_fill_color="color",  # Use the color field we created
+    get_fill_color="color",
     opacity=point_opacity,
     pickable=True,
 )
@@ -152,21 +147,17 @@ view_state = pdk.ViewState(
 deck = pdk.Deck(layers=[boundary_layer, quake_layer], initial_view_state=view_state)
 st.pydeck_chart(deck)
 
+
 ##########
 # DataFrame
 ##########
 st.markdown(
     """
     <style>
-    .dataframe-container {
-        width: 100%;
-    }
-    .stDataFrame {
-        width: 100%;
-    }
+    .dataframe-container {width: 100%;}
+    .stDataFrame {width: 100%;}
     </style>
-    """, unsafe_allow_html=True
-)
+    """, unsafe_allow_html=True)
 
 with st.container():
     st.write(
@@ -175,10 +166,11 @@ with st.container():
         )
     )
 
+
 ##########
 # Metrics Display
 ##########
-
+st.markdown("---")
 # Metrics should use all data, not filtered ones to account for tsunami warnings
 total_quakes = len(pre_checkbox_filtered_quakes)
 intensity_range = f"{pre_checkbox_filtered_quakes['mag'].min()} - {pre_checkbox_filtered_quakes['mag'].max()}"
@@ -189,18 +181,16 @@ col1, col2, col3 = st.columns(3)
 
 with col1:
     display_metric("Total", "Total Earthquakes", (f"{total_quakes}"))
-
 with col2:
     display_metric("Intensity", "Intensity Range", (f"{intensity_range}"))
-
 with col3:
     display_metric("Alerts", "Tsunami Alerts", (f"{tsunami_alerts}"))
+st.markdown("---")
 
 
 ##########
 # Plots
 ##########
-st.markdown("---")
 col1, col2 = st.columns(2)
 
 with col1:
