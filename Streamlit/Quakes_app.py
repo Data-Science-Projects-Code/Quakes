@@ -1,4 +1,3 @@
-from datetime import datetime
 import numpy as np
 import pandas as pd
 import geopandas as gpd
@@ -6,14 +5,15 @@ import matplotlib.pyplot as plt
 import pydeck as pdk
 import streamlit as st
 import requests
-from shapely.geometry import Polygon, LineString, Point
+from metrics import display_metric
+
+
+# Configure the layout
+st.set_page_config(layout="wide")
 
 # Custom CSS for metrics boxes
 with open("styles.css") as css_file:
     st.markdown(f"<style>{css_file.read()}</style>", unsafe_allow_html=True)
-
-# Configure the layout
-st.set_page_config(layout="wide")
 
 # Constants
 base_color = "#2c353c"
@@ -202,47 +202,18 @@ with st.container():
 
 # Additional Information (small boxes/charts) with styling
 st.markdown("---")
+
+###########
+# Metrics Display
+###########
 total_quakes = len(filtered_quakes)
 intensity_range = f"{filtered_quakes['mag'].min()} - {filtered_quakes['mag'].max()}"
 tsunami_alerts = filtered_quakes["tsunami_warning"].sum()
 
-
-
-# Display these metrics in a row with custom styling
 col1, col2, col3 = st.columns(3)
-
-with col1:
-    st.markdown(
-        f"""
-        <div class="metric-box">
-            <div class="metric-label">Total Earthquakes</div>
-            <div class="metric-value">{total_quakes}</div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-with col2:
-    st.markdown(
-        f"""
-        <div class="metric-box">
-            <div class="metric-label">Intensity Range</div>
-            <div class="metric-value">{intensity_range}</div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-with col3:
-    st.markdown(
-        f"""
-        <div class="metric-box">
-            <div class="metric-label">Tsunami Alerts</div>
-            <div class="metric-value">{tsunami_alerts}</div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+display_metric(col1, "Total Earthquakes", total_quakes)
+display_metric(col2, "Intensity Range", intensity_range)
+display_metric(col3, "Tsunami Alerts", tsunami_alerts)
 
 ###########
 # Plots
