@@ -13,10 +13,12 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
+
     - name: Set up Python 3.12
       uses: actions/setup-python@v4
       with:
         python-version: '3.12'
+
 
     - name: Install dependencies
       run: |
@@ -27,6 +29,13 @@ jobs:
         else
           echo "requirements.txt not found, skipping dependency installation."
         
+
+    - name: Create logs and data directories
+      run: |
+        mkdir -p logs
+        mkdir -p data
+    
+
     - name: Delete previous files with prefix 'quakes_'
       run: |
         echo "Deleting previous parquet files..."
@@ -36,7 +45,8 @@ jobs:
         else
           echo "Deleted files: $deleted_files"
         fi
-      continue-on-error: true  # Don't fail the step if no files are found
+      continue-on-error: true 
+
 
     - name: Run data processing script
       run: |
@@ -49,12 +59,19 @@ jobs:
           exit 1
         fi
         echo "Data processing completed successfully."
-      continue-on-error: false  # Fail the job if data processing fails
+      continue-on-error: false 
       
-    - name: Upload logs
+
+    - name: Output log file contents
+      if: success() || failure()  # Always output logs if they exist
+      run: |
+        echo "Printing log contents..."
+        cat logs/data_processing.log 
+
+
+    - name: Upload logs as artifacts
       if: failure() || success()
       uses: actions/upload-artifact@v3
       with:
-        name: output-log
-        path: output.log
-
+        name: data-processing-logs
+        path: logs/data_processing.log 
