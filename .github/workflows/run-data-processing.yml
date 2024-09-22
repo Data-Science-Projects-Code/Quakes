@@ -40,16 +40,14 @@ jobs:
     - name: Run data processing script
       run: |
         echo "Starting data processing script..."
-        set -e 
-        python src/data_processing.py > output.log 2>&1
+        set -e  # Ensure the script exits on error
+        python src/data_processing.py > output.log 2>&1  # Capture both stdout and stderr in output.log
         if [ $? -ne 0 ]; then
-          echo "Data processing failed. Check output.log for details."
-          cat output.log  # This will print the log to the console if needed
+          echo "Data processing failed. Check the output below:"
+          cat output.log  # Print the contents of output.log to the console
           exit 1
         fi
         echo "Data processing completed successfully."
-
-
 
           
 
