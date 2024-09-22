@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import pandas as pd
 import geopandas as gpd
@@ -11,11 +12,9 @@ from metrics import display_metric
 st.set_page_config(layout="wide")
 
 # Load CSS
-with open("styles.css", "r") as css_file:
+css_path = os.path.join(os.path.dirname(__file__), "styles.css")
+with open(css_path, "r") as css_file:
     st.markdown(f"<style>{css_file.read()}</style>", unsafe_allow_html=True)
-
-
-#st.markdown("<style>" + open("styles.css").read() + "</style>", unsafe_allow_html=True)
 
 
 # Constants
