@@ -24,10 +24,10 @@ jobs:
         python -m pip install --upgrade pip
         if [ -f requirements.txt ]; then 
           pip install -r requirements.txt
-        fi
+        else
+          echo "requirements.txt not found, skipping dependency installation."
         
     - name: Delete previous files with prefix 'quakes_'
-      if: success()
       run: |
         echo "Deleting previous parquet files..."
         deleted_files=$(find data/ -name 'quakes_*.parquet' -exec rm {} \; -print)
@@ -36,6 +36,7 @@ jobs:
         else
           echo "Deleted files: $deleted_files"
         fi
+      continue-on-error: true  # Don't fail the step if no files are found
 
     - name: Run data processing script
       run: |
@@ -48,40 +49,12 @@ jobs:
           exit 1
         fi
         echo "Data processing completed successfully."
+      continue-on-error: false  # Fail the job if data processing fails
+      
+    - name: Upload logs
+      if: failure() || success()
+      uses: actions/upload-artifact@v3
+      with:
+        name: output-log
+        path: output.log
 
-          
-
-    # - name: Run data processing script
-    #   run: |
-    #     echo "Starting data processing script..."
-    #     set -e 
-    #     python src/data_processing.py || { echo "Data processing failed"; exit 1; }
-    #     echo "Data processing completed successfully."
-    #
-    # - name: Commit and push the processed data
-    #   if: success() 
-    #   run: |
-    #     echo "Committing and pushing processed data..."
-    #     git config --global user.name "github actions"
-    #     git config --global user.email "actions@github.com"
-    #     git add data/
-    #     git diff --quiet && git diff --staged --quiet || git commit -m "Update processed data on $(date +'%y-%m-%d %H:%M:%S')"
-    #     git push || { echo "Git push failed"; exit 1; }
-    #   env:
-    #     github_token: ${{ secrets.github_token }}
-    #
-    # - name: Send Slack notification on success
-    #   if: success()
-    #   uses: 8398a7/action-slack@v3
-    #   with:
-    #     status: success
-    #   env:
-    #     slack_webhook_url: ${{ secrets.slack_webhook_url }}
-    #
-    # - name: Send Slack notification on failure
-    #   if: failure()
-    #   uses: 8398a7/action-slack@v3
-    #   with:
-    #     status: failure
-    #   env:
-    #     slack_webhook_url: ${{ secrets.slack_webhook_url }}
