@@ -1,4 +1,4 @@
-from datetime import datetime
+import os
 import numpy as np
 import pandas as pd
 import geopandas as gpd
@@ -6,20 +6,25 @@ import matplotlib.pyplot as plt
 import pydeck as pdk
 import streamlit as st
 import requests
+from metrics import display_metric
 
 # Configure the layout
 st.set_page_config(layout="wide")
 
+# Load CSS
+css_path = os.path.join(os.path.dirname(__file__), "styles.css")
+with open(css_path, "r") as css_file:
+    st.markdown(f"<style>{css_file.read()}</style>", unsafe_allow_html=True)
+
+
 # Constants
-base_color = "#2c353c"
-grid_color = "#3e4044"
 point_opacity = 0.35
 magnitude_scale = 70000
 map_zoom = 1.2
+base_color = "#2c353c"
+grid_color = "#3e4044"
 github_repo_url = "https://api.github.com/repos/hrokr/quakes/contents/data"
 
-
-# Data loading with debugging statements
 @st.cache_data(ttl=600)
 def load_data():
     try:
@@ -35,13 +40,9 @@ def load_data():
 
         # Parse the JSON response
         files = response.json()
-        st.write("Files fetched from GitHub:", files)  # Debugging statement
 
         # Filter for files that start with 'quakes_'
         matching_files = [file for file in files if file["name"].startswith("quakes_")]
-        st.write(
-            "Matching earthquake data files:", matching_files
-        )  # Debugging statement
 
         if not matching_files:
             st.error("No earthquake data files found.")
@@ -50,7 +51,6 @@ def load_data():
         # Sort and select the most recent file
         matching_files.sort(key=lambda x: x["name"], reverse=True)
         recent_file_url = matching_files[0]["download_url"]
-        st.write("Fetching data from URL:", recent_file_url)  # Debugging statement
 
         # Load the parquet file from the URL
         quakes = pd.read_parquet(
@@ -66,15 +66,66 @@ def load_data():
                 "tsunami_warning",
             ],
         )
-        st.write("Earthquake data loaded:", quakes.head())  # Debugging statement
 
-        # Update the boundaries URL to point to the correct path with proper casing
+        # Workaround -- just allows the dots to display but duplicates the points in the analytics
+        map_df = quakes.copy
+
+        # Duplicate the data + and - 360 degrees longitude
+        quakes_plus = quakes.copy()
+        quakes_plus["longitude"] = quakes_plus["longitude"] + 360
+
+        quakes_minus = quakes.copy()
+        quakes_minus["longitude"] = quakes_minus["longitude"] - 360
+
+        quakes = pd.concat([quakes, quakes_plus, quakes_minus]).drop_duplicates(
+            subset=["longitude", "latitude", "datetime"]
+        )
+
+        # Load fault boundaries data
         boundaries_url = "https://raw.githubusercontent.com/hrokr/quakes/main/data/GeoJSON/PB2002_boundaries.json"
-        st.write("Fetching boundaries from URL:", boundaries_url)  # Debugging statement
         boundaries = gpd.read_file(boundaries_url)
-        st.write("Boundaries data loaded: True")  # Debugging statement
 
-        return quakes, boundaries
+        # Create duplicates for +360 and -360 degrees
+        boundaries_plus = boundaries.copy()
+        boundaries_minus = boundaries.copy()
+
+        def shift_geometry(geom, lon_offset):
+            # Check if the geometry is valid
+            if geom.is_empty:
+                return geom
+            # Shift the geometry's coordinates
+            shifted_coords = []
+            if geom.geom_type in ["Polygon", "MultiPolygon"]:
+                for coords in geom.exterior.coords:  # Handle Polygon
+                    shifted_coords.append((coords[0] + lon_offset, coords[1]))
+                return Polygon(shifted_coords)
+
+            elif geom.geom_type in ["LineString", "MultiLineString"]:
+                for coords in geom.coords:
+                    shifted_coords.append((coords[0] + lon_offset, coords[1]))
+                return LineString(shifted_coords)
+
+            elif geom.geom_type == "Point":
+                return Point(geom.x + lon_offset, geom.y)
+
+            return geom  # Return the original if no match
+
+        # Shift the boundaries by ±360 degrees for geometries
+        def shift_boundaries(boundaries, lon_offset):
+            boundaries_shifted = boundaries.copy()
+            boundaries_shifted["geometry"] = boundaries_shifted["geometry"].translate(
+                xoff=lon_offset
+            )
+            return boundaries_shifted
+
+        # Shift by +360 and -360 degrees
+        boundaries_plus = shift_boundaries(boundaries, 360)
+        boundaries_minus = shift_boundaries(boundaries, -360)
+
+        # Concatenate the original boundaries with the shifted versions
+        boundaries_all = pd.concat([boundaries, boundaries_plus, boundaries_minus])
+
+        return quakes, boundaries_all
 
     except Exception as e:
         st.error(f"Error loading data: {e}")
@@ -89,22 +140,35 @@ if quakes is None or boundaries is None:
 # Sidebar
 ###########
 st.sidebar.title("Controls")
+
+# Sliders for magnitude and depth range
 mag_slider = st.sidebar.slider("Magnitude range", 2.5, 9.9, (2.5, 9.9))
 depth_slider = st.sidebar.slider("Depth range (km)", 0, 700, (0, 700))
+
+# Filter data based on sliders (before checkbox filtering)
+pre_checkbox_filtered_quakes = quakes[
+    (quakes["mag"].between(*mag_slider)) & (quakes["depth"].between(*depth_slider))
+]
+
+# Display filtered and total rows in the sidebar
+st.sidebar.text(
+    f"Map & chart will display {len(pre_checkbox_filtered_quakes)} of {len(quakes)} rows"
+)
+
+# Checkbox options
 tsunami_warning = st.sidebar.checkbox("Highlight tsunami warnings")
 toggle_boundaries = st.sidebar.checkbox("Toggle Fault Boundaries")
 
-# Data filtering
-filtered_quakes = quakes[
-    (quakes["mag"].between(*mag_slider)) & (quakes["depth"].between(*depth_slider))
-]
+# Further filtering based on checkboxes
+filtered_quakes = pre_checkbox_filtered_quakes
 if tsunami_warning:
     filtered_quakes = filtered_quakes[filtered_quakes["tsunami_warning"]]
 
-st.write(f"Filtered earthquakes: {len(filtered_quakes)} rows")  # Debugging statement
 
-# Title and display info
-st.title("Earthquakes > 2.5 in the Last 24 Hours")
+# Title and display info - Update title to show date from parquet data
+last_datetime = quakes["datetime"].max().strftime("%d %B %Y")
+st.title(f"Earthquakes > 2.5 as of 23:59 UTC on {last_datetime}")
+
 st.write(
     f"Displaying quakes between magnitude {mag_slider[0]} and {mag_slider[1]} "
     f"at depths between {depth_slider[0]} and {depth_slider[1]} km."
@@ -118,11 +182,10 @@ boundary_layer = pdk.Layer(
     "GeoJsonLayer",
     boundaries,
     line_width_min_pixels=1,
-    get_line_color=[255, 215, 0, 50],  # RGB for #ffd700
+    get_line_color=[255, 215, 0, 50],  # RGB for #ffd700 (gold)
     pickable=True,
     visible=toggle_boundaries,  # Visibility controlled by the checkbox
 )
-st.write("Boundary layer created.")  # Debugging statement
 
 # Quake layer with filtered data
 quake_layer = pdk.Layer(
@@ -149,7 +212,47 @@ deck = pdk.Deck(
     initial_view_state=view_state,
 )
 st.pydeck_chart(deck)
-st.write("Boundary layer added to layers.")  # Debugging statement
+
+
+#########
+# DataFrame
+##########
+st.markdown(
+    """
+    <style>
+    .dataframe-container {width: 100%;}
+    .stDataFrame {width: 100%;}
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+with st.container():
+    st.write(
+        filtered_quakes.style.set_table_attributes(
+            "class='stDataFrame'"
+        ).set_table_styles([{"selector": ".stDataFrame", "props": [("width", "100%")]}])
+    )
+
+###########
+# Additional Information (small boxes/charts)
+###########
+
+# Metrics should use all data, not filtered ones to account for tsunami warnings
+total_quakes = len(pre_checkbox_filtered_quakes)
+intensity_range = f"{pre_checkbox_filtered_quakes['mag'].min()} - {pre_checkbox_filtered_quakes['mag'].max()}"
+tsunami_alerts = pre_checkbox_filtered_quakes["tsunami_warning"].sum()
+st.markdown("---")
+# Ensure the layout displays the metrics in a row
+col1, col2, col3 = st.columns(3)
+
+with col1:
+    display_metric("Total", "Total Earthquakes", (f"{total_quakes}"))
+with col2:
+    display_metric("Intensity", "Intensity Range", (f"{intensity_range}"))
+with col3:
+    display_metric("Alerts", "Tsunami Alerts", (f"{tsunami_alerts}"))
+
 
 ###########
 # Plots
@@ -188,16 +291,11 @@ with col2:
     plt.grid(color=grid_color, linestyle="--", linewidth=0.5)
     st.pyplot(plt)
 
-###########
-# Todo List
-###########
 """
-Todo List:
-- [x] Change dot size (scale with magnitude)
-- [x] Selectable color for quakes that generate tsunami warnings
-- [x] Tweak charts to have a unified color scheme
-- [x] Slider/map interactivity
-- [x] Change colors for boundaries
-- [ ] Boundaries as a clickable layer
-- [ ] Tweak map
+Status: Mostly Functional
+
+ - [x] Get maps to show all dots
+ - [ ] Get maps to show all gridlines
+ - [ ] Get analytics to work correctly
+ - [ ] Redeploy
 """
