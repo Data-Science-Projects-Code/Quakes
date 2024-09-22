@@ -25,17 +25,17 @@ jobs:
         if [ -f requirements.txt ]; then 
           pip install -r requirements.txt || { echo "Dependency installation failed"; exit 1; }
         fi
-    #
-    # - name: Delete previous files with prefix 'quakes_'
-    #   run: |
-    #     echo "Deleting previous parquet files..."
-    #     DELETED_FILES=$(find data/ -name 'quakes_*.parquet' -exec rm {} \; -print)
-    #     if [ -z "$DELETED_FILES" ]; then
-    #       echo "No files with prefix 'quakes_' found."
-    #     else
-    #       echo "Deleted files: $DELETED_FILES"
-    #     fi
-    #
+
+    - name: Delete previous files with prefix 'quakes_'
+      run: |
+        echo "Deleting previous parquet files..."
+        DELETED_FILES=$(find data/ -name 'quakes_*.parquet' -exec rm {} \; -print)
+        if [ -z "$DELETED_FILES" ]; then
+          echo "No files with prefix 'quakes_' found."
+        else
+          echo "Deleted files: $DELETED_FILES"
+        fi
+
     # - name: Run data processing script
     #   run: |
     #     echo "Starting data processing script..."
