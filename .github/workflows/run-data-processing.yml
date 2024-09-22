@@ -25,24 +25,35 @@ jobs:
         if [ -f requirements.txt ]; then 
           pip install -r requirements.txt
         fi
-          
+        
     - name: Delete previous files with prefix 'quakes_'
+      if: success()
       run: |
         echo "Deleting previous parquet files..."
-        DELETED_FILES=$(find data/ -name 'quakes_*.parquet' -exec rm {} \; -print)
-        if [ -z "$DELETED_FILES" ]; then
+        deleted_files=$(find data/ -name 'quakes_*.parquet' -exec rm {} \; -print)
+        if [ -z "$deleted_files" ]; then
           echo "No files with prefix 'quakes_' found."
         else
-          echo "Deleted files: $DELETED_FILES"
+          echo "Deleted files: $deleted_files"
         fi
 
-    - name: Run data processing script
-      run: |
-        echo "Starting data processing script..."
-        set -e 
-        python src/data_processing.py || { echo "Data processing failed"; exit 1; }
-        echo "Data processing completed successfully."
-
+    # - name: Delete previous files with prefix 'quakes_'
+    #   run: |
+    #     echo "Deleting previous parquet files..."
+    #     DELETED_FILES=$(find data/ -name 'quakes_*.parquet' -exec rm {} \; -print)
+    #     if [ -z "$DELETED_FILES" ]; then
+    #       echo "No files with prefix 'quakes_' found."
+    #     else
+    #       echo "Deleted files: $DELETED_FILES"
+    #     fi
+    #
+    # - name: Run data processing script
+    #   run: |
+    #     echo "Starting data processing script..."
+    #     set -e 
+    #     python src/data_processing.py || { echo "Data processing failed"; exit 1; }
+    #     echo "Data processing completed successfully."
+    #
     # - name: Commit and push the processed data
     #   if: success() 
     #   run: |
