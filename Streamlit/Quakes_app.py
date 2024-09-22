@@ -10,12 +10,12 @@ from metrics import display_metric
 # Configure the layout
 st.set_page_config(layout="wide")
 
-# # Load CSS
-# with open("styles.css", "r") as css_file:
-#     st.markdown(f"<style>{css_file.read()}</style>", unsafe_allow_html=True)
+# Load CSS
+with open("styles.css", "r") as css_file:
+    st.markdown(f"<style>{css_file.read()}</style>", unsafe_allow_html=True)
 
 
-st.markdown("<style>" + open("styles.css").read() + "</style>", unsafe_allow_html=True)
+#st.markdown("<style>" + open("styles.css").read() + "</style>", unsafe_allow_html=True)
 
 
 # Constants
