@@ -22,12 +22,19 @@ jobs:
       run: |
         echo "Installing dependencies..."
         python -m pip install --upgrade pip
-        if [ -f requirements.txt ]; 
-        then 
-          pip install -r requirements.txt 
-    #   || { echo "Dependency installation failed"; exit 1; }
+        if [ -f requirements.txt ]; then 
+          pip install -r requirements.txt
         fi
-    #
+          
+
+    # - name: Install dependencies
+    #   run: |
+    #     echo "Installing dependencies..."
+    #     python -m pip install --upgrade pip
+    #     if [ -f requirements.txt ]; then 
+    #       pip install -r requirements.txt || { echo "Dependency installation failed"; exit 1; }
+    #     fi
+    # #
     # - name: Delete previous files with prefix 'quakes_'
     #   run: |
     #     echo "Deleting previous parquet files..."
