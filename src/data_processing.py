@@ -21,7 +21,7 @@ console.setFormatter(formatter)
 logging.getLogger().addHandler(console)
 
 # Constants for directories and URLs
-DATA_DIR = "../data"
+DATA_DIR = "data"
 EARTHQUAKE_URL = (
     "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_day.geojson"
 )
