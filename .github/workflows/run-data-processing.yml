@@ -52,7 +52,7 @@ jobs:
       run: |
         echo "Starting data processing script..."
         set -e  # Ensure the script exits on error
-        python src/data_processing.py > output.log 2>&1  # Capture both stdout and stderr in output.log
+        # python src/data_processing.py > output.log 2>&1  # Capture both stdout and stderr in output.log
         if [ $? -ne 0 ]; then
           echo "Data processing failed. Check the output below:"
           cat output.log  # Print the contents of output.log to the console
@@ -60,8 +60,14 @@ jobs:
         fi
         echo "Data processing completed successfully."
       continue-on-error: false 
+   
       
-
+    - name: Create logs and data directories
+      run: |
+        mkdir -p logs
+        mkdir -p data
+   
+        
     - name: Output log file contents
       if: success() || failure()  # Always output logs if they exist
       run: |
