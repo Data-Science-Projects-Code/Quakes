@@ -20,7 +20,6 @@ jobs:
 
     - name: Install dependencies
       run: |
-        echo "Installing dependencies..."
         python -m pip install --upgrade pip
         if [ -f requirements.txt ]; then 
           pip install -r requirements.txt
@@ -28,16 +27,10 @@ jobs:
         
     - name: Delete previous files with prefix 'quakes_'
       run: |
-        echo "Deleting previous parquet files..."
         deleted_files=$(find data/ -name 'quakes_*.parquet' -exec rm {} \; -print)
-        if [ -z "$deleted_files" ]; then
-          echo "No files with prefix 'quakes_' found."
-        else
-          echo "Deleted files: $deleted_files"
         fi
       continue-on-error: true
 
     - name: Run data processing script
       run: |
-        echo "Starting data processing script..."
         python src/data_processing.py
