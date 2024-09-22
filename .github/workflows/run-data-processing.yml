@@ -36,13 +36,13 @@ jobs:
           echo "Deleted files: $DELETED_FILES"
         fi
 
-    # - name: Run data processing script
-    #   run: |
-    #     echo "Starting data processing script..."
-    #     set -e 
-    #     python src/data_processing.py || { echo "Data processing failed"; exit 1; }
-    #     echo "Data processing completed successfully."
-    #
+    - name: Run data processing script
+      run: |
+        echo "Starting data processing script..."
+        set -e 
+        python src/data_processing.py || { echo "Data processing failed"; exit 1; }
+        echo "Data processing completed successfully."
+
     # - name: Commit and push the processed data
     #   if: success() 
     #   run: |
