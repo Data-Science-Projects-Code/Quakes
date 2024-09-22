@@ -1,0 +1,28 @@
+name: Simple Test Workflow
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-job:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+
+    - name: Verify Python Installation
+      run: |
+        python --version
+        pip --version
+
+    - name: Create Test File
+      run: echo "Test file created" > test.txt
+
+    - name: List Files
+      run: ls -la
