@@ -28,8 +28,8 @@ EARTHQUAKE_URL = (
 
 
 def fetch_earthquake_data() -> pd.DataFrame:
-    """Fetch and return earthquake data as a pandas DataFrame."""
     try:
+        headers = {'Cache-Control': 'no-cache'}
         response = requests.get(EARTHQUAKE_URL)
         response.raise_for_status()
         jsondata = response.json()
@@ -42,13 +42,13 @@ def fetch_earthquake_data() -> pd.DataFrame:
         quakes = clean_quake_data(quakes)
         logging.info("Data downloaded and cleaned successfully.")
         return quakes
+
     except RequestException as req_err:
         logging.error(f"Error fetching earthquake data: {req_err}")
         raise
 
 
 def clean_quake_data(quakes: pd.DataFrame) -> pd.DataFrame:
-    """Clean the earthquake data and return the DataFrame."""
     quakes.drop(
         [
             "id",
