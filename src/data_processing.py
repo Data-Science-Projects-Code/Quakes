@@ -1,160 +1,115 @@
-from datetime import datetime
-import numpy as np
+import requests
 import pandas as pd
-import geopandas as gpd
-import matplotlib.pyplot as plt
-import pydeck as pdk
-import streamlit as st
+import logging
+from datetime import datetime, timezone
+from zoneinfo import ZoneInfo  # Replace pytz for timezone handling
+import os
+from pathlib import Path
+from requests.exceptions import RequestException
 
-# Configure the layout
-st.set_page_config(layout="wide")
+# Define the timezone
+eastern = ZoneInfo("US/Eastern")
 
-# Constants
-base_color = "#2c353c"
-grid_color = "#3e4044"
-point_opacity = 0.35
-magnitude_scale = 70000
-map_zoom = 1.2
+# Get the top-level directory (parent of src) using Pathlib for better handling
+top_level_dir = Path(__file__).resolve().parent.parent
 
+# Set up log and data directories at the top level
+log_dir = top_level_dir / "logs"
+data_dir = top_level_dir / "data"
 
-# Data loading
-@st.cache_data
-def load_data():
+log_dir.mkdir(parents=True, exist_ok=True)
+data_dir.mkdir(parents=True, exist_ok=True)
+
+# Set up logging with better log rotation handling
+from logging.handlers import TimedRotatingFileHandler
+
+log_file = log_dir / "data_processing.log"
+handler = TimedRotatingFileHandler(log_file, when="midnight", backupCount=7)
+logging.basicConfig(
+    handlers=[handler],
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+)
+
+logging.info("Data processing script started.")
+
+try:
+    # Fetch earthquake data
+    response = requests.get(
+        "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_day.geojson"
+    )
+    response.raise_for_status()  # Raise an HTTPError if the HTTP request returned an unsuccessful status code
+    jsondata = response.json()
+
+    quakes = pd.json_normalize(jsondata["features"])
+
+    # Clean up column names and remove unnecessary columns
+    quakes.columns = quakes.columns.str.replace("properties.", "", regex=False)
+    quakes.columns = quakes.columns.str.replace("geometry.", "", regex=False)
+
+    quakes.drop(
+        [
+            "id",
+            "type",
+            "updated",
+            "tz",
+            "mmi",
+            "detail",
+            "felt",
+            "cdi",
+            "types",
+            "nst",
+            "title",
+        ],
+        axis=1,
+        inplace=True,
+    )
+
+    quakes["ids"] = quakes["ids"].str.strip(",")
+    quakes["sources"] = quakes["sources"].str.strip(",")
+
+    quakes["datetime"] = pd.to_datetime(quakes["time"], unit="ms", utc=True)
+    quakes.drop(columns=["time"], inplace=True)
+
+    # Extract coordinates
+    quakes["longitude"] = quakes.coordinates.str[0]
+    quakes["latitude"] = quakes.coordinates.str[1]
+    quakes["depth"] = quakes.coordinates.str[2]
+    quakes.drop(columns=["coordinates"], inplace=True)
+
+    # Handle tsunami warnings as a boolean column
+    quakes["tsunami_warning"] = quakes["tsunami"].astype("bool")
+    quakes.drop(columns=["tsunami"], inplace=True)
+
+    logging.info("Data downloaded and cleaned successfully.")
+
+    # Save the cleaned data to parquet
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    daily_filename = data_dir / f"quakes_{today}.parquet"
+    quakes.to_parquet(daily_filename)
+    logging.info(f"Today's data saved as {daily_filename}.")
+
+    aggregated_filename = data_dir / "aggregated_data.parquet"
     try:
-        # Load earthquake data
-        quakes = pd.read_parquet(
-            "../data/quakes_last_24.parquet",
-            engine="pyarrow",
-            columns=[
-                "mag",
-                "place",
-                "datetime",
-                "longitude",
-                "latitude",
-                "depth",
-                "tsunami warning",
-            ],
-        )
+        aggregated_data = pd.read_parquet(aggregated_filename)
+        aggregated_data = pd.concat([aggregated_data, quakes], ignore_index=True)
+        logging.info(f"Appended today's data to {aggregated_filename}.")
+    except FileNotFoundError:
+        aggregated_data = quakes
+        logging.info(f"No aggregated file found. Created new {aggregated_filename}.")
 
-        # Load fault boundaries data
-        boundaries = gpd.read_file("../data/geojson/pb2002_boundaries.json")
-        return quakes, boundaries
-    except Exception as e:
-        st.error(f"Error loading data: {e}")
-        st.stop()
+    aggregated_data.to_parquet(aggregated_filename)
+    logging.info(f"Aggregated data saved as {aggregated_filename}.")
 
+except RequestException as req_err:
+    logging.error(f"HTTP request error during data processing: {req_err}")
+    raise
+except pd.errors.EmptyDataError as pd_err:
+    logging.error(f"Pandas encountered an empty data error: {pd_err}")
+    raise
+except Exception as e:
+    logging.error(f"Unexpected error during data processing: {e}")
+    raise
 
-quakes, boundaries = load_data()
-
-##########
-# Sidebar
-###########
-st.sidebar.title("Controls")
-mag_slider = st.sidebar.slider("Magnitude range", 2.5, 9.9, (2.5, 9.9))
-depth_slider = st.sidebar.slider("Depth range (km)", 0, 700, (0, 700))
-tsunami_warning = st.sidebar.checkbox("Highlight tsunami warnings")
-toggle_boundaries = st.sidebar.checkbox("Toggle Fault Boundaries")
-
-# Data filtering
-filtered_quakes = quakes[
-    (quakes["mag"].between(*mag_slider)) & (quakes["depth"].between(*depth_slider))
-]
-if tsunami_warning:
-    filtered_quakes = filtered_quakes[filtered_quakes["tsunami warning"]]
-
-# Title and display info
-st.title("Earthquakes > 2.5 in the Last 24 Hours")
-st.write(
-    f"Displaying quakes between magnitude {mag_slider[0]} and {mag_slider[1]} "
-    f"at depths between {depth_slider[0]} and {depth_slider[1]} km."
-)
-
-###########
-# Map Visualization
-###########
-# Boundary layer visibility depends on the toggle_boundaries checkbox
-boundary_layer = pdk.Layer(
-    "GeoJsonLayer",
-    boundaries,
-    line_width_min_pixels=1,
-    get_line_color=[255, 215, 0, 50],  # RGB for #ffd700
-    pickable=True,
-    visible=toggle_boundaries,  # Visibility controlled by the checkbox
-)
-
-# Quake layer with filtered data
-quake_layer = pdk.Layer(
-    "ScatterplotLayer",
-    filtered_quakes,
-    get_position=["longitude", "latitude"],
-    get_radius="mag * {}".format(magnitude_scale),
-    get_fill_color=[213, 90, 83],  # Single color for all quakes
-    opacity=point_opacity,
-    pickable=True,
-)
-
-# Pydeck viewport centered on the Ring of Fire
-view_state = pdk.ViewState(
-    longitude=-170,
-    latitude=15,
-    zoom=map_zoom,
-    pitch=0,
-)
-
-# Render the deck
-deck = pdk.Deck(
-    layers=[boundary_layer, quake_layer],
-    initial_view_state=view_state,
-)
-st.pydeck_chart(deck)
-
-###########
-# Plots
-###########
-st.markdown("---")
-col1, col2 = st.columns(2)
-
-with col1:
-    # Scatterplot of depth vs. magnitude
-    st.subheader("Depth vs Magnitude")
-    plt.figure(figsize=(5.65, 6), facecolor=base_color)
-    plt.scatter(
-        filtered_quakes["depth"], filtered_quakes["mag"], alpha=0.5, c="red"
-    )  # Single color for scatter plot
-    plt.title("Depth vs Magnitude")
-    plt.xlabel("Depth (km)")
-    plt.ylabel("Magnitude")
-    plt.gca().set_facecolor(base_color)
-    plt.grid(color=grid_color, linestyle="--", linewidth=0.5)
-    st.pyplot(plt)
-
-with col2:
-    # Histogram of quake strength by hour
-    st.subheader("Quake Strength by Hour")
-    hist_values = np.histogram(
-        filtered_quakes["datetime"].dt.hour, bins=24, range=(0, 24)
-    )[0]
-    plt.figure(figsize=(5.8, 6), facecolor=base_color)
-    plt.bar(range(24), hist_values, color="#fe4c4b", alpha=0.60)
-    plt.title("Quake Strength by Hour")
-    plt.xlabel("Hour of the Day")
-    plt.ylabel("Count")
-    plt.grid()
-    plt.xticks(range(24))
-    plt.gca().set_facecolor(base_color)
-    plt.grid(color=grid_color, linestyle="--", linewidth=0.5)
-    st.pyplot(plt)
-
-###########
-# Todo List
-###########
-"""
-Todo List:
-- [x] Change dot size (scale with magnitude)
-- [x] Selectable color for quakes that generate tsunami warnings
-- [x] Tweak charts to have a unified color scheme
-- [x] Slider/map interactivity
-- [x] Change colors for boundaries
-- [ ] Boundaries as a clickable layer
-- [ ] Tweak map
-"""
+logging.info("Data processing script completed successfully.")
+print("Data downloaded, cleaned, and saved as parquet files.")
