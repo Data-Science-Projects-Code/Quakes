@@ -1,4 +1,4 @@
-name: Scheduled Data Processing
+name: scheduled data processing
 
 on:
   schedule:
@@ -20,33 +20,40 @@ jobs:
 
     - name: Install dependencies
       run: |
+        echo "Installing dependencies..."
         python -m pip install --upgrade pip
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-        echo: "Intalled dependencies"
-          
+        if [ -f requirements.txt ]; then 
+          pip install -r requirements.txt || { echo "Dependency installation failed"; exit 1; }
+        fi
+
     - name: Delete previous files with prefix 'quakes_'
-      if: success()
       run: |
-        run: echo "Deleting previous Parquet file"
-        find data/ -name 'quakes_*.parquet' -exec rm {} \;
+        echo "Deleting previous parquet files..."
+        DELETED_FILES=$(find data/ -name 'quakes_*.parquet' -exec rm {} \; -print)
+        if [ -z "$DELETED_FILES" ]; then
+          echo "No files with prefix 'quakes_' found."
+        else
+          echo "Deleted files: $DELETED_FILES"
+        fi
 
     - name: Run data processing script
       run: |
-        echo: "Running Data processing script"  
+        echo "Starting data processing script..."
         set -e 
-        python src/data_processing.py
-        echo: "Competed running data processing script"
+        python src/data_processing.py || { echo "Data processing failed"; exit 1; }
+        echo "Data processing completed successfully."
 
     - name: Commit and push the processed data
       if: success() 
       run: |
-        git config --global user.name "GitHub Actions"
+        echo "Committing and pushing processed data..."
+        git config --global user.name "github actions"
         git config --global user.email "actions@github.com"
         git add data/
-        git diff --quiet && git diff --staged --quiet || git commit -m "Update processed data on $(date +'%Y-%m-%d %H:%M:%S')"
-        git push
+        git diff --quiet && git diff --staged --quiet || git commit -m "Update processed data on $(date +'%y-%m-%d %H:%M:%S')"
+        git push || { echo "Git push failed"; exit 1; }
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        github_token: ${{ secrets.github_token }}
 
     - name: Send Slack notification on success
       if: success()
@@ -54,7 +61,7 @@ jobs:
       with:
         status: success
       env:
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        slack_webhook_url: ${{ secrets.slack_webhook_url }}
 
     - name: Send Slack notification on failure
       if: failure()
@@ -62,5 +69,4 @@ jobs:
       with:
         status: failure
       env:
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-
+        slack_webhook_url: ${{ secrets.slack_webhook_url }}
