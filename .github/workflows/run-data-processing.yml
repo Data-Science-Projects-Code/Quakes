@@ -13,12 +13,10 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-
     - name: Set up Python 3.12
       uses: actions/setup-python@v4
       with:
         python-version: '3.12'
-
 
     - name: Install dependencies
       run: |
@@ -26,16 +24,8 @@ jobs:
         python -m pip install --upgrade pip
         if [ -f requirements.txt ]; then 
           pip install -r requirements.txt
-        else
-          echo "requirements.txt not found, skipping dependency installation."
+        fi
         
-
-    - name: Create logs and data directories
-      run: |
-        mkdir -p logs
-        mkdir -p data
-    
-
     - name: Delete previous files with prefix 'quakes_'
       run: |
         echo "Deleting previous parquet files..."
@@ -45,39 +35,9 @@ jobs:
         else
           echo "Deleted files: $deleted_files"
         fi
-      continue-on-error: true 
-
+      continue-on-error: true
 
     - name: Run data processing script
       run: |
         echo "Starting data processing script..."
-        set -e  # Ensure the script exits on error
-        # python src/data_processing.py > output.log 2>&1  # Capture both stdout and stderr in output.log
-        if [ $? -ne 0 ]; then
-          echo "Data processing failed. Check the output below:"
-          cat output.log  # Print the contents of output.log to the console
-          exit 1
-        fi
-        echo "Data processing completed successfully."
-      continue-on-error: false 
-   
-      
-    - name: Create logs and data directories
-      run: |
-        mkdir -p logs
-        mkdir -p data
-   
-        
-    - name: Output log file contents
-      if: success() || failure()  # Always output logs if they exist
-      run: |
-        echo "Printing log contents..."
-        cat logs/data_processing.log 
-
-
-    - name: Upload logs as artifacts
-      if: failure() || success()
-      uses: actions/upload-artifact@v3
-      with:
-        name: data-processing-logs
-        path: logs/data_processing.log 
+        python src/data_processing.py
