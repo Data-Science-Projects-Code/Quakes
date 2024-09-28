@@ -2,6 +2,14 @@
 #  <p align="center">Quakes</p>
 
 ![earthquakes >2.5 ](images/updated_events.png)
+<br><br>
+## Table of Contents
+- [Top Image](#quakes)
+- [Project Description](#project-description)
+- [Background](#background)
+- [Project Status](#status-1st-phase-done)
+
+<br><br>
 
 ## Project Description
 This project gets USGS data, cleans it, and displays it as either a:
@@ -22,13 +30,7 @@ Or, put graphically:
 
 ![earthquakes >2.5 ](images/Quakes_overview_graphic.png)
 
-<br><br>
 
-## Table of Contents
-- [Top Image](#quakes)
-- [Project Description](#project-description)
-- [Background](#background)
-- [Project Status](#status-1st-phase-done)
   
 <br><br> 
 
