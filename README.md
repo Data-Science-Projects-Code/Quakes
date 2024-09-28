@@ -43,7 +43,7 @@ What I liked about this project was how it blended art with technology. Even mor
 
 <br>
 
-## <center>Status: Working on remaining details of app.<center>
+## <center>Status: App functional with daily updates. Collecting data for next phase <center>
 <br>
 
 ### 1 - Steps up to simple display
@@ -59,7 +59,7 @@ What I liked about this project was how it blended art with technology. Even mor
 - [x] Contact Eric Geist at [Tsunami and Earthquake Research](https://www.usgs.gov/centers/pcmsc/science/tsunami-and-earthquake-research?qt-science_center_objects=0#qt-science_center_objects) to see if there have been more tsunami occurrences
 - [x] Get & massage data for tsunami warnings and actual tsunamis reported
 - [ ] Contact Lisa Wald of USGS
-- [ ] Get tsunami warning/occurrence data
+- [ ] Get tsunami warning/occurrence data (working)
 
 ### 4 - Model development and display
 - [ ] Develop model
