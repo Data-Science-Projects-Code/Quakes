@@ -1,0 +1,28 @@
+2024-09-22 00:11:24,288 - INFO - Data processing script started.
+2024-09-22 00:11:24,579 - INFO - Data downloaded and cleaned successfully.
+2024-09-22 00:11:24,579 - ERROR - An unexpected error occurred: Unable to find a usable engine; tried using: 'pyarrow', 'fastparquet'.
+A suitable version of pyarrow or fastparquet is required for parquet support.
+Trying to import the above resulted in these errors:
+ - Missing optional dependency 'pyarrow'. pyarrow is required for parquet support. Use pip or conda to install pyarrow.
+ - Missing optional dependency 'fastparquet'. fastparquet is required for parquet support. Use pip or conda to install fastparquet.
+2024-09-22 00:13:19,955 - INFO - Data processing script started.
+2024-09-22 00:13:20,232 - INFO - Data downloaded and cleaned successfully.
+2024-09-22 00:13:20,328 - ERROR - An unexpected error occurred: Cannot save file into a non-existent directory: 'data'
+2024-09-22 00:15:16,485 - INFO - Data processing script started.
+2024-09-22 00:15:16,772 - INFO - Data downloaded and cleaned successfully.
+2024-09-22 00:15:16,814 - INFO - Today's data saved as ../data/quakes_2024-09-22.parquet.
+2024-09-22 00:15:16,936 - INFO - Appended today's data to ../data/aggregated_data.parquet.
+2024-09-22 00:15:16,939 - INFO - Aggregated data saved as ../data/aggregated_data.parquet.
+2024-09-22 00:15:16,939 - INFO - Data processing script completed successfully.
+2024-09-22 00:25:27,889 - INFO - Data processing script started.
+2024-09-22 00:25:28,140 - INFO - Data downloaded and cleaned successfully.
+2024-09-22 00:25:28,164 - INFO - Today's data saved as ../data/quakes_2024-09-22.parquet.
+2024-09-22 00:25:28,184 - INFO - Appended today's data to ../data/aggregated_data.parquet.
+2024-09-22 00:25:28,188 - INFO - Aggregated data saved as ../data/aggregated_data.parquet.
+2024-09-22 00:25:28,188 - INFO - Data processing script completed successfully.
+2024-09-22 00:27:03,647 - INFO - Data processing script started.
+2024-09-22 00:27:03,911 - INFO - Data downloaded and cleaned successfully.
+2024-09-22 00:27:03,936 - INFO - Today's data saved as ../data/quakes_2024-09-22.parquet.
+2024-09-22 00:27:03,956 - INFO - Appended today's data to ../data/aggregated_data.parquet.
+2024-09-22 00:27:03,959 - INFO - Aggregated data saved as ../data/aggregated_data.parquet.
+2024-09-22 00:27:03,959 - INFO - Data processing script completed successfully.
