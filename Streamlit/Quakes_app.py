@@ -24,7 +24,7 @@ gold_color = [255, 215, 0]  # Gold for fault lines and tsunami warnings
 quake_color = [213, 90, 83]  # Red for normal quakes
 base_color = "#2c353c"
 grid_color = "#3e4044"
-github_repo_url = "https://github.com/Data-Science-Projects-Code/Quakes/tree/main/data"
+github_repo_url = "https://github.com/Data-Science-Projects-Code/Quakes/tree/main/"
 
 
 @st.cache_data(ttl=600)
