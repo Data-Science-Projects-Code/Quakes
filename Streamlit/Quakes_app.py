@@ -25,7 +25,6 @@ gold_color = [255, 215, 0]  # Gold for fault lines and tsunami warnings
 quake_color = [213, 90, 83]  # Red for normal quakes
 base_color = "#2c353c"
 grid_color = "#3e4044"
-#github_repo_url = "https://github.com/Data-Science-Projects-Code/Quakes"
 github_repo_api_url = (
     "https://api.github.com/repos/Data-Science-Projects-Code/Quakes/contents"
 )
@@ -39,8 +38,8 @@ def load_data():
         response = requests.get(github_repo_api_url)
 
         # Debugging: Display the response status code and content
-        st.write(f"Response Status Code: {response.status_code}")
-        st.write(f"Response Content: {response.content}")
+        # st.write(f"Response Status Code: {response.status_code}")     # keep for debugging
+        # st.write(f"Response Content: {response.content}")             # keep for debugging
 
         if response.status_code != 200:
             st.error(
@@ -50,9 +49,7 @@ def load_data():
 
         # Parse the JSON response correctly
         files = response.json()
-        st.write(
-            f"Parsed JSON files: {files}"
-        )  # Debugging: Check the parsed JSON content
+        # st.write(f"Parsed JSON files: {files}")                       # keep for debugging
 
         matching_files = [file for file in files if file["name"].startswith("quakes_")]
         if not matching_files:
@@ -64,9 +61,7 @@ def load_data():
         recent_file_url = matching_files[0]["download_url"]
 
         # Load the parquet file using the URL
-        st.write(
-            f"Loading data from: {recent_file_url}"
-        )  # Debugging: Display the file URL
+        # st.write(f"Loading data from: {recent_file_url}")             # keep for debugging
         quakes = pd.read_parquet(
             recent_file_url,
             engine="pyarrow",
@@ -120,17 +115,12 @@ quakes_map, quakes_analytics, boundaries = load_data()
 if quakes_map is None or boundaries is None:
     st.stop()
 
-else:
-    st.write("Data loaded successfully!")  # Debug message to confirm data is loaded
-    st.write(
-        f"quakes_map DataFrame: {quakes_map.head()}"
-    )  # Display first few rows of quakes_map
-    st.write(
-        f"quakes_analytics DataFrame: {quakes_analytics.head()}"
-    )  # Display first few rows of quakes_analytics
-    st.write(
-        f"boundaries DataFrame: {boundaries.head()}"
-    )  # Display first few rows of boundaries
+# Keep for debugging
+# else:
+#     st.write("Data loaded successfully!") 
+#     st.write(f"quakes_map DataFrame: {quakes_map.head()}") 
+#     st.write(f"quakes_analytics DataFrame: {quakes_analytics.head()}") 
+#     st.write(f"boundaries DataFrame: {boundaries.head()}") 
 
 
 ##########
