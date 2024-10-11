@@ -34,10 +34,8 @@ github_repo_api_url = (
 @st.cache_data(ttl=600)
 def load_data():
     try:
-        # Fetch the list of files in the data directory using the GitHub API
-        github_repo_api_url = (
-            "https://api.github.com/repos/Data-Science-Projects-Code/Quakes/contents"
-        )
+        # Use the GitHub API to fetch the list of files in the data directory
+        github_repo_api_url = "https://api.github.com/repos/Data-Science-Projects-Code/Quakes/contents/data"
         response = requests.get(github_repo_api_url)
 
         # Debugging: Display the response status code and content
@@ -50,7 +48,7 @@ def load_data():
             )
             return None, None, None
 
-        # Parse the JSON response
+        # Parse the JSON response correctly
         files = response.json()
         st.write(
             f"Parsed JSON files: {files}"
@@ -65,7 +63,7 @@ def load_data():
         matching_files.sort(key=lambda x: x["name"], reverse=True)
         recent_file_url = matching_files[0]["download_url"]
 
-        # Load the parquet file
+        # Load the parquet file using the URL
         st.write(
             f"Loading data from: {recent_file_url}"
         )  # Debugging: Display the file URL
@@ -96,7 +94,7 @@ def load_data():
         quakes_analytics = quakes.copy()
 
         # Load fault boundaries data and create +360 and -360 duplicates
-        boundaries_url = "https://raw.githubusercontent.com/hrokr/quakes/main/data/GeoJSON/PB2002_boundaries.json"
+        boundaries_url = "https://raw.githubusercontent.com/Data-Science-Projects-Code/Quakes/main/data/GeoJSON/PB2002_boundaries.json"
         boundaries = gpd.read_file(boundaries_url)
 
         def shift_boundaries(boundaries, lon_offset):
