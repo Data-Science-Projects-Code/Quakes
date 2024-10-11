@@ -35,7 +35,15 @@ github_repo_api_url = (
 def load_data():
     try:
         # Fetch the list of files in the data directory using the GitHub API
+        github_repo_api_url = (
+            "https://api.github.com/repos/Data-Science-Projects-Code/Quakes/contents"
+        )
         response = requests.get(github_repo_api_url)
+
+        # Debugging: Display the response status code and content
+        st.write(f"Response Status Code: {response.status_code}")
+        st.write(f"Response Content: {response.content}")
+
         if response.status_code != 200:
             st.error(
                 f"Failed to fetch files from GitHub. Status code: {response.status_code}"
@@ -44,6 +52,10 @@ def load_data():
 
         # Parse the JSON response
         files = response.json()
+        st.write(
+            f"Parsed JSON files: {files}"
+        )  # Debugging: Check the parsed JSON content
+
         matching_files = [file for file in files if file["name"].startswith("quakes_")]
         if not matching_files:
             st.error("No earthquake data files found.")
@@ -54,6 +66,9 @@ def load_data():
         recent_file_url = matching_files[0]["download_url"]
 
         # Load the parquet file
+        st.write(
+            f"Loading data from: {recent_file_url}"
+        )  # Debugging: Display the file URL
         quakes = pd.read_parquet(
             recent_file_url,
             engine="pyarrow",
@@ -102,10 +117,10 @@ def load_data():
         return None, None, None
 
 
-# Load data
-quakes_map, quakes_analytics, boundaries = load_data()
-if quakes_map is None or boundaries is None:
-    st.stop()
+# # Load data
+# quakes_map, quakes_analytics, boundaries = load_data()
+# if quakes_map is None or boundaries is None:
+#     st.stop()
 
 ##########
 # Sidebar (Controls from File 1)
