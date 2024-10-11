@@ -1,3 +1,4 @@
+
 import os
 import numpy as np
 import pandas as pd
@@ -24,26 +25,29 @@ gold_color = [255, 215, 0]  # Gold for fault lines and tsunami warnings
 quake_color = [213, 90, 83]  # Red for normal quakes
 base_color = "#2c353c"
 grid_color = "#3e4044"
-github_repo_url = "https://github.com/Data-Science-Projects-Code/Quakes"
+#github_repo_url = "https://github.com/Data-Science-Projects-Code/Quakes"
+github_repo_api_url = (
+    "https://api.github.com/repos/Data-Science-Projects-Code/Quakes/contents"
+)
 
 
 @st.cache_data(ttl=600)
 def load_data():
     try:
-        # Fetch the list of files in the data directory
-        response = requests.get(github_repo_url)
+        # Fetch the list of files in the data directory using the GitHub API
+        response = requests.get(github_repo_api_url)
         if response.status_code != 200:
             st.error(
                 f"Failed to fetch files from GitHub. Status code: {response.status_code}"
             )
-            return None, None
+            return None, None, None
 
         # Parse the JSON response
         files = response.json()
         matching_files = [file for file in files if file["name"].startswith("quakes_")]
         if not matching_files:
             st.error("No earthquake data files found.")
-            return None, None
+            return None, None, None
 
         # Sort and select the most recent file
         matching_files.sort(key=lambda x: x["name"], reverse=True)
