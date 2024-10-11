@@ -117,10 +117,23 @@ def load_data():
         return None, None, None
 
 
-# # Load data
-# quakes_map, quakes_analytics, boundaries = load_data()
-# if quakes_map is None or boundaries is None:
-#     st.stop()
+# Load data
+quakes_map, quakes_analytics, boundaries = load_data()
+if quakes_map is None or boundaries is None:
+    st.stop()
+
+else:
+    st.write("Data loaded successfully!")  # Debug message to confirm data is loaded
+    st.write(
+        f"quakes_map DataFrame: {quakes_map.head()}"
+    )  # Display first few rows of quakes_map
+    st.write(
+        f"quakes_analytics DataFrame: {quakes_analytics.head()}"
+    )  # Display first few rows of quakes_analytics
+    st.write(
+        f"boundaries DataFrame: {boundaries.head()}"
+    )  # Display first few rows of boundaries
+
 
 ##########
 # Sidebar (Controls from File 1)
