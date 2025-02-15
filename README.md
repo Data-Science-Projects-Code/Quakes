@@ -1,17 +1,19 @@
 
-#  <p align="center">Quakes</p>
+# <p align="center">Quakes</p>
 
 ![earthquakes >2.5 ](images/updated_events.png)
 <br><br>
-## Table of Contents
-- [Top Image](#quakes)
-- [Project Description](#project-description)
-- [Background](#background)
-- [Project Status](#status-1st-phase-done)
 
+## Table of Contents
+
+- [Top Image](#quakes)
+- [Description](#description)
+- [Background](#background)
+- [Status](#status)
 <br><br>
 
-## Project Description
+## Description
+
 This project gets USGS data, cleans it, and displays it as either a:
 <ol>
 <li>Jupyter notebook. <code>Quakes_all_in_one.ipnb</code> is the most instructive, an all-in-one solution, and what generated the image above. It displays the map with Folium because I wanted to, as closely as possible, recreate the USGS site which uses Leaflet.JS, which Folium is based on. This notebook also pulls the data at the time of use in the event you have an earthquake watching emergency.</li></ol>
@@ -20,50 +22,56 @@ Considering most folks don't and this is a personal project rather than a produc
 <br><br>
 <ol start="2">
 <li>Streamilit app. <code>Quakes_app.py</code> is what Streamlit Cloud hosts and runs at https://quakes.streamlit.app/() </li>
-<li>Jupyter notebook. <code>Quakes_display.ipynb</code> differs from the other jupyter notebook in where it gets it data from and it's currenly the only one that displays the aggregated data. 
+<li>Jupyter notebook. <code>Quakes_display.ipynb</code> differs from the other jupyter notebook in where it gets it data from and it's currenly the only one that displays the aggregated data.
 
 </li></ol>
 
-<br> 
+<br>
 
 Or, put graphically:
 
 ![earthquakes >2.5 ](images/Quakes_overview_graphic.png)
 
+<br><br>
 
-  
-<br><br> 
+## Background
 
-## Background 
 A few years ago I started a makerspace with a group of really good folks. Along the way, we met an artist and instructor, [Christina Weisner](https://www.christinaweisner.com/about), who was in the early stages of doing a project and consulting with one of our members, Kerry Krauss. Kerry was a professor of electronics technology at the local community college.
 
 According to Kerry, the code was a bit of kludge. It got the data from USGS somehow; I'm not sure if was RSS, Atom, or JSON. From there, the data was processed and sent a signal to a bunch of Arduino Uno boards by *sound*. Each Arduino was used to actuate one of the seismometers Christina bought. That might seem nuts but Kerry's rationale was, since they were having to troubleshoot at each location, audio was easier to troubleshoot than whipping out a multimeter every time. You can see Christina & Kerry and learn more about her project [here](https://www.youtube.com/embed/uK_es620K0w).
 
-What I liked about this project was how it blended art with technology. Even more interesting is one of the hydrophones was still functional so Christina (with some help) was able to make the observers part of the installation. Another thing I found interesting was the artist as a sort of conductor rather than as the sole author. Christina had the inspiration and idea but almost all the most fabrication and technical aspects came from others. 
+What I liked about this project was how it blended art with technology. Even more interesting is one of the hydrophones was still functional so Christina (with some help) was able to make the observers part of the installation. Another thing I found interesting was the artist as a sort of conductor rather than as the sole author. Christina had the inspiration and idea but almost all the most fabrication and technical aspects came from others.
 
-[Top ](#table-of-contents)
+[Top](#table-of-contents)
 
 <br>
 
-## <center>Status: App functional with daily updates. Collecting data for next phase <center>
+## Status
+
+### <center> App functional with daily updates. Collecting data for next phase </center>
+
 <br>
 
 ### 1 - Steps up to simple display
- - [x] Pull JSON data from USGS of earthquakes greater than magnitude 2.5 over the last 24 hrs 
- - [x] Pipeline formatting of data
- - [x] Display map of quakes >= 2.5 over last 24 hrs using Folium 
+
+- [x] Pull JSON data from USGS of earthquakes greater than magnitude 2.5 over the last 24 hrs
+- [x] Pipeline formatting of data
+- [x] Display map of quakes >= 2.5 over last 24 hrs using Folium
 
 ### 2 -  Automate pipeline and Streamlit app
- - [x] GitHub actions to automate update of data.
- - [x] [Deploy app](https://quakes.streamlit.app/)
+
+- [x] GitHub actions to automate update of data.
+- [x] [Deploy app](https://quakes.streamlit.app/)
 
 ### 3 -  Pre-model development
+
 - [x] Contact Eric Geist at [Tsunami and Earthquake Research](https://www.usgs.gov/centers/pcmsc/science/tsunami-and-earthquake-research?qt-science_center_objects=0#qt-science_center_objects) to see if there have been more tsunami occurrences
 - [x] Get & massage data for tsunami warnings and actual tsunamis reported
 - [ ] Contact Lisa Wald of USGS
 - [ ] Get tsunami warning/occurrence data (working)
 
 ### 4 - Model development and display
+
 - [ ] Develop model
 - [ ] Twilio integration
 - [ ] Find a way to export a photo as .png rather than as `quakes_last_24_hours.html` to update repo image at top daily.
