@@ -1,4 +1,3 @@
-
 import os
 import numpy as np
 import pandas as pd
@@ -117,10 +116,10 @@ if quakes_map is None or boundaries is None:
 
 # Keep for debugging
 # else:
-#     st.write("Data loaded successfully!") 
-#     st.write(f"quakes_map DataFrame: {quakes_map.head()}") 
-#     st.write(f"quakes_analytics DataFrame: {quakes_analytics.head()}") 
-#     st.write(f"boundaries DataFrame: {boundaries.head()}") 
+#     st.write("Data loaded successfully!")
+#     st.write(f"quakes_map DataFrame: {quakes_map.head()}")
+#     st.write(f"quakes_analytics DataFrame: {quakes_analytics.head()}")
+#     st.write(f"boundaries DataFrame: {boundaries.head()}")
 
 
 ##########
@@ -254,13 +253,13 @@ with col1:
     st.pyplot(plt)
 
 with col2:
-    st.subheader("Quake Strength by Hour")
+    st.subheader("Quake Count by Hour")
     hist_values = np.histogram(
         pre_checkbox_filtered_quakes["datetime"].dt.hour, bins=24, range=(0, 24)
     )[0]
     plt.figure(figsize=(5.8, 6), facecolor=base_color)
     plt.bar(range(24), hist_values, color="#fe4c4b", alpha=0.60)
-    plt.title("Quake Strength by Hour")
+    plt.title("Quake Count by Hour")
     plt.xlabel("Hour of the Day")
     plt.ylabel("Count")
     plt.xticks(range(24))
