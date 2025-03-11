@@ -17,12 +17,12 @@
 This project gets USGS data, cleans it, and displays it as either a:
 <ol>
 <li>Jupyter notebook. <code>Quakes_all_in_one.ipnb</code> is the most instructive, an all-in-one solution, and what generated the image above. It displays the map with Folium because I wanted to, as closely as possible, recreate the USGS site which uses Leaflet.JS, which Folium is based on. This notebook also pulls the data at the time of use in the event you have an earthquake watching emergency.</li></ol>
-<br>
-Considering most folks don't and this is a personal project rather than a product for sale, I opted for pulling data once a day. So, at midnight, GMT, a GitHub actions creates an ephemeral runner that runs <code>data_processing.py</code> which downloads USGS earthquake data. The data is already clean but needs to be transformed which the script also does. It then saves both a daily and aggregated version (for future use). Parquet is used for speed and compactness. That bring us to the two other ways of displaying the data.
+
+Fortunately, most folks don't have earthquake watching emergencies, and I could opt for pulling data once a day. So, at midnight, GMT, a GitHub action creates an ephemeral runner which runs <code>data_processing.py</code> which downloads USGS earthquake data. The data is already clean but needs to be transformed which the script also does. It then saves both a daily and aggregated version (for future use). Parquet is used for speed and compactness. That brings us to the two other ways of displaying the data.
 <br><br>
 <ol start="2">
 <li>Streamilit app. <code>Quakes_app.py</code> is what Streamlit Cloud hosts and runs at https://quakes.streamlit.app/() </li>
-<li>Jupyter notebook. <code>Quakes_display.ipynb</code> differs from the other jupyter notebook in where it gets it data from and it's currenly the only one that displays the aggregated data.
+<li>Jupyter notebook. <code>Quakes_display.ipynb</code> differs from the other jupyter notebook in where it gets it data from and it's currently the only one that displays the aggregated data.
 
 </li></ol>
 
@@ -38,9 +38,9 @@ Or, put graphically:
 
 A few years ago I started a makerspace with a group of really good folks. Along the way, we met an artist and instructor, [Christina Weisner](https://www.christinaweisner.com/about), who was in the early stages of doing a project and consulting with one of our members, Kerry Krauss. Kerry was a professor of electronics technology at the local community college.
 
-According to Kerry, the code was a bit of kludge. It got the data from USGS somehow; I'm not sure if was RSS, Atom, or JSON. From there, the data was processed and sent a signal to a bunch of Arduino Uno boards by *sound*. Each Arduino was used to actuate one of the seismometers Christina bought. That might seem nuts but Kerry's rationale was, since they were having to troubleshoot at each location, audio was easier to troubleshoot than whipping out a multimeter every time. You can see Christina & Kerry and learn more about her project [here](https://www.youtube.com/embed/uK_es620K0w).
+According to Kerry, the code was a bit of kludge. It got the data from USGS somehow; I'm not sure if was RSS, Atom, or JSON. From there, the data was processed and sent a signal to a bunch of Arduino Uno boards ***by sound***. Each Arduino was used to actuate one of the seismometers Christina bought. That might seem nuts but Kerry's rationale was, since they were having to troubleshoot at each location, audio was easier to troubleshoot than whipping out a multimeter every time. You can see Christina & Kerry and learn more about her project [here](https://www.youtube.com/embed/uK_es620K0w).
 
-What I liked about this project was how it blended art with technology. Even more interesting is one of the hydrophones was still functional so Christina (with some help) was able to make the observers part of the installation. Another thing I found interesting was the artist as a sort of conductor rather than as the sole author. Christina had the inspiration and idea but almost all the most fabrication and technical aspects came from others.
+What I liked about this project was how it blended art with technology. Even more interesting was one of the hydrophones was still functional so Christina (with some help) was able to make the observers part of the installation. Another thing I found interesting was the artist as a sort of conductor rather than as the sole author. Christina had the inspiration and idea for the project but almost all the most fabrication and technical aspects came from others.
 
 [Top](#table-of-contents)
 
@@ -74,7 +74,7 @@ What I liked about this project was how it blended art with technology. Even mor
 
 - [ ] Develop model
 - [ ] Twilio integration
-- [ ] Find a way to export a photo as .png rather than as `quakes_last_24_hours.html` to update repo image at top daily.
+- [ ] Find a way to export a photo as .png rather than as `quakes_last_24_hours.html` to update repo image at top daily. This is tricky because to do this for folium seem to require selenium and the formatting can be variable.
 <br>
 
 [Top](#table-of-contents)
