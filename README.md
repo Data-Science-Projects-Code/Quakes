@@ -21,7 +21,7 @@ This project gets USGS data, cleans it, and displays it as either a:
 Fortunately, most folks don't have earthquake watching emergencies, and I could opt for pulling data once a day. So, at midnight, GMT, a GitHub action creates an ephemeral runner which runs <code>data_processing.py</code> which downloads USGS earthquake data. The data is already clean but needs to be transformed which the script also does. It then saves both a daily and aggregated version (for future use). Parquet is used for speed and compactness. That brings us to the two other ways of displaying the data.
 <br><br>
 <ol start="2">
-<li>Streamilit app. <code>Quakes_app.py</code> is what Streamlit Cloud hosts and runs at https://quakes.streamlit.app/() </li>
+<li>Streamilit app. <code>Quakes_app.py</code> is what Streamlit Cloud hosts and runs at https://quakes.streamlit.app/
 <li>Jupyter notebook. <code>Quakes_display.ipynb</code> differs from the other jupyter notebook in where it gets it data from and it's currently the only one that displays the aggregated data.
 
 </li></ol>
